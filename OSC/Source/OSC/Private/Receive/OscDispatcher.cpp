@@ -27,13 +27,12 @@ void UOscDispatcher::Listen(uint32_t port)
 {
     if(_currentPort != port)
     {
-        delete _socket;
-        delete _socketReceiver;
+        Stop();
 
-        _socket = FUdpSocketBuilder(TEXT("OscListener")).BoundToAddress(FIPv4Address::Any).BoundToPort(port).Build();
+        _socket = FUdpSocketBuilder(TEXT("OscListener")).AsNonBlocking().BoundToAddress(FIPv4Address::Any).BoundToPort(port).Build();
         if(_socket)
         {
-            _socketReceiver = new FUdpSocketReceiver(_socket, FTimespan(0, 0, 0, 10), TEXT("OSCListener"));
+            _socketReceiver = new FUdpSocketReceiver(_socket, FTimespan::FromMilliseconds(100), TEXT("OSCListener"));
             _socketReceiver->OnDataReceived().BindUObject(this, &UOscDispatcher::Callback);
 
             _currentPort = port;
@@ -49,23 +48,15 @@ void UOscDispatcher::Listen(uint32_t port)
 void UOscDispatcher::Stop()
 {
     UE_LOG(LogOSC, Display, TEXT("Stop listening"));
+
+    delete _socketReceiver;
+    _socketReceiver = nullptr;
+
     if(_socket)
     {
-        _socket->Close();
+        ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(_socket);
+        _socket = nullptr;
     }
-    if(_socketReceiver)
-    {
-        _socketReceiver->OnDataReceived().Unbind();
-        _socketReceiver->Stop();
-
-        // wait longer than the socket read wait time, or it will crash.
-        FPlatformProcess::Sleep(0.1f);
-    }
-
-    delete _socket;
-    delete _socketReceiver;
-    _socket = nullptr;
-    _socketReceiver = nullptr;
 
     _currentPort = 0;
 }
@@ -142,23 +133,31 @@ static void SendBundle(TCircularQueue<std::pair<FName, FOscDataStruct>> & _pendi
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
     UE_LOG(LogOSC, Verbose, TEXT("OSC Received"));
-    const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
-    if(packet.IsBundle())
+    try
     {
-        SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
-    }
-    else
-    {
-        SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
-    }
+        const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
+
+        if(packet.IsBundle())
+        {
+            SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
+        }
+        else
+        {
+            SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
+        }
     
-    if(!_pendingMessages.IsEmpty())
+        if(!_pendingMessages.IsEmpty())
+        {
+            FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
+                FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
+                TEXT("OscDispatcherProcessMessages"),
+                nullptr,
+                ENamedThreads::GameThread);
+        }
+    }
+    catch(osc::MalformedPacketException &e)
     {
-        FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
-            FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
-            TEXT("OscDispatcherProcessMessages"),
-            nullptr,
-            ENamedThreads::GameThread);
+        UE_LOG(LogOSC, Warning, TEXT("Malformed OSC message: %s"), e.what());
     }
 }
 
