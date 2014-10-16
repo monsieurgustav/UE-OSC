@@ -90,15 +90,25 @@ struct FOscDataElemStruct
 
     void SetString(FName value)
     {
+#if OSC_ENGINE_VERSION < 40500
         static_assert(sizeof(value) <= sizeof(Data), "Too short to hold the string value.");
+        Data = *reinterpret_cast<const int64*>(&value);
+#else
+        static_assert(sizeof(FMinimalName) <= sizeof(Data), "Too short to hold the string value.");
+        const auto mininal = NameToMinimalName(value);
+        Data = *reinterpret_cast<const int64*>(&mininal);
+#endif
         Type = STRING;
-        Data = *reinterpret_cast<int64*>(&value);
         assert(value == AsStringValue());
     }
 
     FName AsStringValue() const
     {
+#if OSC_ENGINE_VERSION < 40500
         return *reinterpret_cast<const FName *>(&Data);
+#else
+        return MinimalNameToName(*reinterpret_cast<const FMinimalName *>(&Data));
+#endif
     }
 
     bool IsString() const

@@ -150,7 +150,11 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
         {
             FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
                 FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
+#if OSC_ENGINE_VERSION < 40500
                 TEXT("OscDispatcherProcessMessages"),
+#else
+                TStatId(),
+#endif
                 nullptr,
                 ENamedThreads::GameThread);
         }
