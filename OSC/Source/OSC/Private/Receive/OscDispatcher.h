@@ -16,7 +16,7 @@ class UOscDispatcher : public UObject
 
     friend class OscModule;
 
-    void Listen(uint32_t port);
+    void Listen(FIPv4Address address, uint32_t port);
     void Stop();
 
 public:
@@ -41,7 +41,7 @@ private:
 
 private:
     TArray<IOscReceiverInterface *> _receivers;
-    uint32_t _currentPort;
+    std::pair<FIPv4Address, uint32_t> _listening;
     FSocket * _socket;
     FUdpSocketReceiver * _socketReceiver;
     TCircularQueue<std::pair<FName, FOscDataStruct>> _pendingMessages;

@@ -3,7 +3,7 @@
 
 UOscSettings::UOscSettings( const class FPostConstructInitializeProperties& PCIP )
  :  Super(PCIP),
-    ReceivePort(8000),
+    ReceiveFrom("8000"),
     _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
 {
     SendTargets.Add(TEXT("127.0.0.1:8000"));
@@ -21,18 +21,18 @@ void UOscSettings::UpdateSendAddresses()
 
         if(_sendAddresses[i].first != SendTargets[i])
         {
-            int32 sep = 0;
-            bool isValid = false;
-            if(SendTargets[i].FindChar(TEXT(':'), sep))
+            FIPv4Address address(0);
+            uint32_t port;
+            if(Parse(SendTargets[i], &address, &port) && address != FIPv4Address::Any)
             {
-                const FString ip = SendTargets[i].Left(sep).Trim();
-                _sendAddresses[i].second->SetIp(&ip.GetCharArray()[0], isValid);
-                if(isValid)
-                {
-                    const int32 port = FCString::Atoi(&SendTargets[i].GetCharArray()[sep+1]);
-                    _sendAddresses[i].second->SetPort(port);
-                    _sendAddresses[i].first = SendTargets[i];
-                }
+                _sendAddresses[i].second->SetIp(address.GetValue());
+                _sendAddresses[i].second->SetPort(port);
+
+                _sendAddresses[i].first = SendTargets[i];
+            }
+            else
+            {
+                UE_LOG(LogOSC, Warning, TEXT("Fail to parse or invalid send address: %s"), *SendTargets[i]);
             }
         }
     }
@@ -55,4 +55,35 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     {
         UE_LOG(LogOSC, Warning, TEXT("Cannot send OSC: invalid targetIndex %d"), targetIndex);
     }
+}
+
+bool UOscSettings::Parse(const FString & address_port, FIPv4Address * address, uint32_t * port)
+{
+    if(address_port.IsEmpty())
+    {
+        return false;
+    }
+
+    FIPv4Address addressResult(0);
+    uint32_t portResult;
+
+    int32 sep = -1;
+    if(address_port.FindChar(TEXT(':'), sep))
+    {
+        const auto ip = address_port.Left(sep).Trim();
+        if(!FIPv4Address::Parse(ip, addressResult))
+        {
+            return false;
+        }
+    }
+    
+    portResult = FCString::Atoi(&address_port.GetCharArray()[sep+1]);
+    if(portResult == 0)
+    {
+        return false;
+    }
+
+    *address = addressResult;
+    *port = portResult;
+    return true;
 }

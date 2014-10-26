@@ -16,11 +16,9 @@ public:
             return;
         }
 
-        auto settings = GetMutableDefault<UOscSettings>();
-
         _dispatcher = UOscDispatcher::Get();
-        _dispatcher->Listen(settings->ReceivePort);
-        settings->UpdateSendAddresses();
+        
+        HandleSettingsSaved();
 
         // register settings
         ISettingsModule* settingsModule = ISettingsModule::Get();
@@ -29,6 +27,7 @@ public:
             FSettingsSectionDelegates settingsDelegates;
             settingsDelegates.ModifiedDelegate = FOnSettingsSectionModified::CreateRaw(this, &FOscModule::HandleSettingsSaved);
 
+            auto settings = GetMutableDefault<UOscSettings>();
             settingsModule->RegisterSettings("Project", "Plugins", "OSC",
                 LOCTEXT("OscSettingsName", "OSC"),
                 LOCTEXT("OscSettingsDescription", "Configure the OSC plug-in."),
@@ -54,13 +53,31 @@ public:
 
     bool HandleSettingsSaved()
     {
-        UE_LOG(LogOSC, Display, TEXT("Update settings"));
-        UOscSettings* settings = GetMutableDefault<UOscSettings>();
-        if(_dispatcher.IsValid())
+        if(!_dispatcher.IsValid())
         {
-            _dispatcher->Listen(settings->ReceivePort);
+            UE_LOG(LogOSC, Warning, TEXT("Cannot update settings"));
+            return false;
         }
+        
+        UE_LOG(LogOSC, Display, TEXT("Update settings"));
+
+        auto settings = GetMutableDefault<UOscSettings>();
+
+        // receive settings
+        FIPv4Address receiveAddress(0);
+        uint32_t receivePort;
+        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort))
+        {
+            _dispatcher->Listen(receiveAddress, receivePort);
+        }
+        else
+        {
+            UE_LOG(LogOSC, Warning, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
+        }
+        
+        // send settings
         settings->UpdateSendAddresses();
+
         return true;
     }
 
