@@ -63,22 +63,33 @@ void UOscFunctionLibrary::PushInt(FOscDataStruct input, int32 Value, FOscDataStr
 
 void UOscFunctionLibrary::PushString(FOscDataStruct input, FName Value, FOscDataStruct & output)
 {
+    if(Value.GetDisplayNameEntry()->IsWide())
+    {
+        const auto tmp = Value.GetPlainNameString();
+        UE_LOG(LogOSC, Error, TEXT("Invalid string argument \"%s\": ASCII only"), *tmp);
+        return;
+    }
+
     output = input;
     FOscDataElemStruct elem;
     elem.SetString(Value);
     output.Queue.Add(elem);
 }
 
-void UOscFunctionLibrary::SendOsc(const FString & Address, const FOscDataStruct & Data, int32 TargetIndex)
+void UOscFunctionLibrary::SendOsc(FName Address, const FOscDataStruct & Data, int32 TargetIndex)
 {
+    if(Address.GetDisplayNameEntry()->IsWide())
+    {
+        const auto tmp = Address.GetPlainNameString();
+        UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
+        return;
+    }
+    
     static_assert(sizeof(uint8) == sizeof(char), "Cannot cast uint8 to char");
     uint8 buffer[1024];
 
-    char oscAddress[256];
-    strcpy(oscAddress, TCHAR_TO_ANSI(*Address));
-
     osc::OutboundPacketStream output((char *)buffer, sizeof(buffer));
-    output << osc::BeginMessage(oscAddress);
+    output << osc::BeginMessage(Address.GetPlainANSIString());
     for(int32 i=Data.Index, n=Data.Queue.Num(); i<n; ++i)
     {
         const auto & elem = Data.Queue[i];

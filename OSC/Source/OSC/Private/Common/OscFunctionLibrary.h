@@ -50,5 +50,5 @@ class UOscFunctionLibrary : public UBlueprintFunctionLibrary
      *  @param Index index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
      */
     UFUNCTION(BlueprintCallable, Category=OSC)
-    static void SendOsc(const FString & Address, const FOscDataStruct & Data, int32 TargetIndex);
+    static void SendOsc(FName Address, const FOscDataStruct & Data, int32 TargetIndex);
 };
