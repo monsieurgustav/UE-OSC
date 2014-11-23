@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OscDataStruct.h"
+#include "OscDataElemStruct.h"
 #include "OscDispatcher.generated.h"
 
 class IOscReceiverInterface;
@@ -44,5 +44,5 @@ private:
     std::pair<FIPv4Address, uint32_t> _listening;
     FSocket * _socket;
     FUdpSocketReceiver * _socketReceiver;
-    TCircularQueue<std::pair<FName, FOscDataStruct>> _pendingMessages;
+    TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> _pendingMessages;
 };

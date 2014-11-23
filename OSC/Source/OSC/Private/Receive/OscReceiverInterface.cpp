@@ -14,5 +14,5 @@ const FString & IOscReceiverInterface::GetAddressFilter()
     return defaultValue;
 }
 
-void IOscReceiverInterface::SendEvent(const FName & Address, const FOscDataStruct & Data)
+void IOscReceiverInterface::SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
 { }

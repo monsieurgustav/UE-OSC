@@ -2,7 +2,7 @@
 
 #include "GameFramework/Actor.h"
 #include "OscReceiverInterface.h"
-#include "OscDataStruct.h"
+#include "OscDataElemStruct.h"
 #include "OscReceiverActor.generated.h"
 
 
@@ -15,7 +15,7 @@ class AOscReceiverActor : public AActor, public IOscReceiverInterface
     FString AddressFilter;
 
     UFUNCTION(BlueprintImplementableEvent, Category=OSC)
-    void OnOscReceived(const FName & Address, const FOscDataStruct & Data);
+    void OnOscReceived(const FName & Address, const TArray<FOscDataElemStruct> & Data);
 
 protected:
 
@@ -26,7 +26,7 @@ protected:
         return AddressFilter;
     }
 
-    virtual void SendEvent(const FName & Address, const FOscDataStruct & Data) override
+    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) override
     {
         OnOscReceived(Address, Data);
     }

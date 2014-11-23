@@ -2,12 +2,12 @@
 
 #include "Components/ActorComponent.h"
 #include "OscReceiverInterface.h"
-#include "OscDataStruct.h"
+#include "OscDataElemStruct.h"
 #include "OscReceiverComponent.generated.h"
 
 
 // declare the OnOscReceived event type
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FComponentOscReceivedSignature, const FName &, Address, const FOscDataStruct &, Data);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FComponentOscReceivedSignature, const FName &, Address, const TArray<FOscDataElemStruct> &, Data);
 
 
 UCLASS(meta = (BlueprintSpawnableComponent))
@@ -31,7 +31,7 @@ protected:
         return AddressFilter;
     }
 
-    virtual void SendEvent(const FName & Address, const FOscDataStruct & Data) override
+    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) override
     {
         OnOscReceived.Broadcast(Address, Data);
     }

@@ -23,14 +23,14 @@ Add a OscReceiverComponent to your Blueprint class and bind the OnOscReceived cu
 
 Subclass the OscReceiverActor and bind the OnOscReceived custom event.
 
-Use the PopFloat/Int/Bool/String functions to retrieve the OSC message parameters.
+Use the PopFloat/Int/Bool/String functions, or standard array functions, to retrieve the OSC message parameters.
 
 
  - Sender:
  
 Set the "send to" addresses in the plugin settings.
 
-Use the PushFloat/Int/Bool/String functions to build the OSC message parameters.
+Use the PushFloat/Int/Bool/String functions, or standard array functions, to build the OSC message parameters.
 
 Use the SendOsc function to send the OSC message
 

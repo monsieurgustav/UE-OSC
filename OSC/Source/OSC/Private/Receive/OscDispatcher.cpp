@@ -78,11 +78,11 @@ void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
     _receivers.Remove(receiver);
 }
 
-static void SendMessage(TCircularQueue<std::pair<FName, FOscDataStruct>> & _pendingMessages, const osc::ReceivedMessage & message)
+static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedMessage & message)
 {
     const FName address(message.AddressPattern());
 
-    FOscDataStruct data;
+    TArray<FOscDataElemStruct> data;
     
     const auto argBegin = message.ArgumentsBegin();
     const auto argEnd = message.ArgumentsEnd();
@@ -113,14 +113,14 @@ static void SendMessage(TCircularQueue<std::pair<FName, FOscDataStruct>> & _pend
         {
             elem.SetString(FName(it->AsStringUnchecked()));
         }
-        data.Queue.Add(elem);
+        data.Add(elem);
     }
 
     // save it in pending messages
     _pendingMessages.Enqueue(std::make_pair(address, data));
 }
 
-static void SendBundle(TCircularQueue<std::pair<FName, FOscDataStruct>> & _pendingMessages, const osc::ReceivedBundle & bundle)
+static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedBundle & bundle)
 {
     const auto begin = bundle.ElementsBegin();
     const auto end = bundle.ElementsEnd();
@@ -166,7 +166,7 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 
 void UOscDispatcher::CallbackMainThread()
 {
-    std::pair<FName, FOscDataStruct> message;
+    std::pair<FName, TArray<FOscDataElemStruct>> message;
     while(_pendingMessages.Dequeue(message))
     {
         for(auto receiver : _receivers)

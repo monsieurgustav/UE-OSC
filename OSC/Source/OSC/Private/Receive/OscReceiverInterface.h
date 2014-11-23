@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OscDataStruct.h"
+#include "OscDataElemStruct.h"
 #include "OscReceiverInterface.generated.h"
 
 
@@ -15,5 +15,5 @@ class IOscReceiverInterface
     GENERATED_IINTERFACE_BODY()
 
     virtual const FString & GetAddressFilter();
-    virtual void SendEvent(const FName & Address, const FOscDataStruct & Data);
+    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data);
 };
