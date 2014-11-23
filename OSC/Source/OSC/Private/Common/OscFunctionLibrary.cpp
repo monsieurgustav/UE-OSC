@@ -112,6 +112,6 @@ void UOscFunctionLibrary::SendOsc(FName Address, const FOscDataStruct & Data, in
     }
     output << osc::EndMessage;
 
-    assert(buffer = output.Data());
+    check(reinterpret_cast<const void *>(buffer) == reinterpret_cast<const void *>(output.Data()));
     GetMutableDefault<UOscSettings>()->Send(buffer, output.Size(), TargetIndex);
 }

@@ -1,12 +1,8 @@
-
-
 #include "OscPrivatePCH.h"
 #include "OscDispatcher.h"
 #include "OscReceiverInterface.h"
 
 #include "oscpack/osc/OscReceivedElements.h"
-
-#include <assert.h>
 
 
 UOscDispatcher::UOscDispatcher(const class FPostConstructInitializeProperties& PCIP)

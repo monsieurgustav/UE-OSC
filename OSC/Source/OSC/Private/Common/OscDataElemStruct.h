@@ -1,6 +1,5 @@
 #pragma once
 
-#include <assert.h>
 #include "OscDataElemStruct.generated.h"
 
 
@@ -33,11 +32,12 @@ struct FOscDataElemStruct
         static_assert(sizeof(value) <= sizeof(Data), "Too short to hold the float value.");
         Type = FLOAT;
         Data = *reinterpret_cast<int64 *>(&value);
-        assert(value == AsFloatValue());
+        check(value == AsFloatValue());
     }
 
     double AsFloatValue() const
     {
+        check(IsFloat());
         return *reinterpret_cast<const double *>(&Data);
     }
 
@@ -53,11 +53,12 @@ struct FOscDataElemStruct
         static_assert(sizeof(value) <= sizeof(Data), "Too short to hold the integer value.");
         Type = INT;
         Data = value;
-        assert(value == AsIntValue());
+        check(value == AsIntValue());
     }
 
     int64 AsIntValue() const
     {
+        check(IsInt());
         return Data;
     }
 
@@ -73,11 +74,12 @@ struct FOscDataElemStruct
         static_assert(sizeof(value) <= sizeof(Data), "Too short to hold the bool value.");
         Type = BOOL;
         Data = value;
-        assert(value == AsBoolValue());
+        check(value == AsBoolValue());
     }
 
     bool AsBoolValue() const
     {
+        check(IsBool());
         return Data != 0;
     }
 
@@ -99,11 +101,12 @@ struct FOscDataElemStruct
         Data = *reinterpret_cast<const int64*>(&mininal);
 #endif
         Type = STRING;
-        assert(value == AsStringValue());
+        check(value == AsStringValue());
     }
 
     FName AsStringValue() const
     {
+        check(IsString());
 #if OSC_ENGINE_VERSION < 40500
         return *reinterpret_cast<const FName *>(&Data);
 #else
@@ -142,7 +145,7 @@ struct FOscDataElemStruct
         {
             if(isNumber)
             {
-                const auto value = AsIntValue();
+                const auto value = AsBoolValue();
                 return Cast<T, isNumber>::eval(value);
             }
         }
