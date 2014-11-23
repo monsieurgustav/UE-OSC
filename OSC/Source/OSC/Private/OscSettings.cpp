@@ -38,17 +38,30 @@ void UOscSettings::UpdateSendAddresses()
     }
 }
 
+static void SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
+{
+    int32 bytesSent = 0;
+    while(length > 0)
+    {
+        socket->SendTo(buffer, length, bytesSent, target);
+        length -= bytesSent;
+        buffer += bytesSent;
+    }
+}
+
 void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
 {
-    if(targetIndex < _sendAddresses.Num())
+    if(targetIndex == -1)
     {
-        int32 bytesSent = 0;
-        while(length > 0)
+        for(const auto & address : _sendAddresses)
         {
-            _sendSocket->SendTo(buffer, length, bytesSent, *_sendAddresses[targetIndex].second);
-            length -= bytesSent;
-            buffer += bytesSent;
+            SendImpl(&_sendSocket.Get(), buffer, length, *address.second);
         }
+        UE_LOG(LogOSC, Verbose, TEXT("OSC sent"));
+    }
+    else if(targetIndex < _sendAddresses.Num())
+    {
+        SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex].second);
         UE_LOG(LogOSC, Verbose, TEXT("OSC sent"));
     }
     else

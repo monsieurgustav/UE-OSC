@@ -47,7 +47,7 @@ class UOscFunctionLibrary : public UBlueprintFunctionLibrary
      *  @brief Send an OSC message.
      *  @param Address OSC address.
      *  @param Data result of successive PushFloat/Int/String/etc.
-     *  @param Index index of the destination. (SendTarget list of the plugin settings)
+     *  @param Index index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
      */
     UFUNCTION(BlueprintCallable, Category=OSC)
     static void SendOsc(const FString & Address, const FOscDataStruct & Data, int32 TargetIndex);
