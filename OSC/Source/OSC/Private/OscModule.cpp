@@ -21,9 +21,14 @@ public:
         HandleSettingsSaved();
 
         // register settings
-        ISettingsModule* settingsModule = ISettingsModule::Get();
+#if OSC_ENGINE_VERSION < 40600
+        auto settingsModule = ISettingsModule::Get();
+#else
+        auto settingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings");
+#endif
         if(settingsModule)
         {
+#if OSC_ENGINE_VERSION < 40600
             FSettingsSectionDelegates settingsDelegates;
             settingsDelegates.ModifiedDelegate = FOnSettingsSectionModified::CreateRaw(this, &FOscModule::HandleSettingsSaved);
 
@@ -32,8 +37,19 @@ public:
                 LOCTEXT("OscSettingsName", "OSC"),
                 LOCTEXT("OscSettingsDescription", "Configure the OSC plug-in."),
                 settings,
-                settingsDelegates
-            );
+                settingsDelegates);
+#else
+            auto settingsSection = settingsModule->RegisterSettings("Project", "Plugins", "OSC",
+                LOCTEXT("OscSettingsName", "OSC"),
+                LOCTEXT("OscSettingsDescription", "Configure the OSC plug-in."),
+                GetMutableDefault<UOscSettings>()
+                );
+
+            if (settingsSection.IsValid())
+            {
+                settingsSection->OnModified().BindRaw(this, &FOscModule::HandleSettingsSaved);
+            }
+#endif
         }
         else
         {

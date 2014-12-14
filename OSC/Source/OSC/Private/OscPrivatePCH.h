@@ -2,9 +2,16 @@
 
 #include "Osc.h"
 
+#if OSC_ENGINE_VERSION < 40600
 #include "Core.h"
-#include "ModuleManager.h"
 #include "Settings.h"
+#else
+#include "Engine.h"
+#include "ISettingsModule.h"
+#include "ISettingsSection.h"
+#endif
+
+#include "ModuleManager.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "TaskGraphInterfaces.h"
