@@ -1,5 +1,8 @@
 #include "OscPrivatePCH.h"
 
+#include "OscReceiverInputKey.h"
+#include "OscDispatcher.h"
+
 
 UOscSettings::UOscSettings( const class FPostConstructInitializeProperties& PCIP )
  :  Super(PCIP),
@@ -99,4 +102,25 @@ bool UOscSettings::Parse(const FString & address_port, FIPv4Address * address, u
     *address = addressResult;
     *port = portResult;
     return true;
+}
+
+void UOscSettings::ClearKeyInputs(UOscDispatcher & dispatcher)
+{
+    for(auto & receiver : _keyReceivers)
+    {
+        // Unregister here, not in the OscReceiverInputKey destructor
+        // because it would crash at the application exit.
+        dispatcher.UnregisterReceiver(&receiver);
+    }
+    _keyReceivers.Reset(0);
+}
+
+void UOscSettings::UpdateKeyInputs(UOscDispatcher & dispatcher)
+{
+    ClearKeyInputs(dispatcher);
+    for(const auto & address : Inputs)
+    {
+        _keyReceivers.Emplace(address);
+        dispatcher.RegisterReceiver(&_keyReceivers.Last());
+    }
 }

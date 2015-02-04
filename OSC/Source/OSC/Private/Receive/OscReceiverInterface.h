@@ -1,19 +1,33 @@
 #pragma once
 
 #include "OscDataElemStruct.h"
-#include "OscReceiverInterface.generated.h"
 
 
-UINTERFACE(MinimalAPI)
-class UOscReceiverInterface : public UInterface
+/// Base class to receive OSC messages.
+struct IOscReceiverInterface
 {
-    GENERATED_UINTERFACE_BODY()
+    virtual const FString & GetAddressFilter() const = 0;
+    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) = 0;
 };
 
-class IOscReceiverInterface
-{
-    GENERATED_IINTERFACE_BODY()
 
-    virtual const FString & GetAddressFilter();
-    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data);
+/// Forward calls to an impl object.
+template <class T>
+struct BasicOscReceiver : IOscReceiverInterface
+{
+    T * const _impl;
+
+    BasicOscReceiver(T * impl) : _impl(impl)
+    {
+    }
+
+    const FString & GetAddressFilter() const final
+    {
+        return _impl->GetAddressFilter();
+    }
+
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) final
+    {
+        _impl->SendEvent(Address, Data);
+    }
 };

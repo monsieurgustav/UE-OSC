@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FComponentOscReceivedSignature, con
 
 
 UCLASS(meta = (BlueprintSpawnableComponent))
-class UOscReceiverComponent : public UActorComponent, public IOscReceiverInterface
+class UOscReceiverComponent : public UActorComponent
 {
     GENERATED_UCLASS_BODY()
 
@@ -21,18 +21,22 @@ class UOscReceiverComponent : public UActorComponent, public IOscReceiverInterfa
     UPROPERTY(BlueprintAssignable, Category=OSC)
     FComponentOscReceivedSignature OnOscReceived;
 
-protected:
-    virtual void OnRegister() override;
-
-    virtual void OnUnregister() override;
-    
-    virtual const FString & GetAddressFilter() override
+public:
+    const FString & GetAddressFilter() const
     {
         return AddressFilter;
     }
 
-    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) override
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
     {
         OnOscReceived.Broadcast(Address, Data);
     }
+
+private:
+    void OnRegister() override;
+
+    void OnUnregister() override;
+
+private:
+    BasicOscReceiver<UOscReceiverComponent> _listener;
 };

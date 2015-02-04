@@ -17,6 +17,9 @@ namespace UnrealBuildTool.Rules
 					"CoreUObject",
                     "Engine",
 					"Sockets",
+                    "InputCore",
+                    "Slate",
+                    "SlateCore",
 				}
 			);
 

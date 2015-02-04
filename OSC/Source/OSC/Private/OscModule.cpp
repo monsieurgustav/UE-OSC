@@ -61,8 +61,12 @@ public:
     virtual void ShutdownModule( ) override
     {
         UE_LOG(LogOSC, Display, TEXT("Shutdown"));
+
         if(_dispatcher.IsValid())
         {
+            auto settings = GetMutableDefault<UOscSettings>();
+            settings->ClearKeyInputs(*_dispatcher);
+
             _dispatcher->Stop();
         }
     }
@@ -93,6 +97,9 @@ public:
         
         // send settings
         settings->UpdateSendAddresses();
+
+        // input settings
+        settings->UpdateKeyInputs(*_dispatcher);
 
         return true;
     }

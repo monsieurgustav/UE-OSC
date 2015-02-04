@@ -121,6 +121,7 @@ struct FOscDataElemStruct
 
     //-------------------------------------------------------------------------
 
+    /// Cast the value to T.
     template <class T>
     T GetValue() const
     {

@@ -1,9 +1,10 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include <utility>
 #include "OscSettings.generated.h"
+
+class OscReceiverInputKey;
+class UOscDispatcher;
 
 
 UCLASS(config=Engine)
@@ -27,10 +28,23 @@ public:
     UPROPERTY(Config, EditAnywhere, Category=Send)
     TArray<FString> SendTargets;
 
+    /**
+     *  List of the messages treated as inputs.
+     *
+     *  Every entry adds a key in the input mapping project setting.
+     *  e.g. "/position/x" -> "OSC_position_x"
+     */
+    UPROPERTY(Config, EditAnywhere, Category=Input)
+    TArray<FString> Inputs;
+
 public:
     void UpdateSendAddresses();
 
     void Send(const uint8 *buffer, int32 length, int32 targetIndex);
+
+    void ClearKeyInputs(UOscDispatcher & dispatcher);
+
+    void UpdateKeyInputs(UOscDispatcher & dispatcher);
 
 public:
 
@@ -43,4 +57,5 @@ public:
 private:
     TSharedRef<FSocket> _sendSocket;
     TArray<std::pair<FString, TSharedRef<FInternetAddr>>> _sendAddresses;
+    TArray<OscReceiverInputKey> _keyReceivers;
 };

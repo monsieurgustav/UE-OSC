@@ -4,7 +4,8 @@
 
 
 UOscReceiverComponent::UOscReceiverComponent(const class FPostConstructInitializeProperties& PCIP)
-    : Super(PCIP)
+    : Super(PCIP),
+      _listener(this)
 {
 
 }
@@ -16,7 +17,7 @@ void UOscReceiverComponent::OnRegister()
     auto instance = UOscDispatcher::Get();
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
-        instance->RegisterReceiver(this);
+        instance->RegisterReceiver(&_listener);
     }
 }
 
@@ -25,7 +26,7 @@ void UOscReceiverComponent::OnUnregister()
     auto instance = UOscDispatcher::Get();
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
-        instance->UnregisterReceiver(this);
+        instance->UnregisterReceiver(&_listener);
     }
 
     Super::OnUnregister();

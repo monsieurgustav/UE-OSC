@@ -7,7 +7,7 @@
 
 
 UCLASS()
-class AOscReceiverActor : public AActor, public IOscReceiverInterface
+class AOscReceiverActor : public AActor
 {
     GENERATED_UCLASS_BODY()
 
@@ -17,17 +17,20 @@ class AOscReceiverActor : public AActor, public IOscReceiverInterface
     UFUNCTION(BlueprintImplementableEvent, Category=OSC)
     void OnOscReceived(const FName & Address, const TArray<FOscDataElemStruct> & Data);
 
-protected:
-
-    virtual void BeginDestroy() override;
-    
-    virtual const FString & GetAddressFilter() override
+public:
+    const FString & GetAddressFilter() const
     {
         return AddressFilter;
     }
 
-    virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) override
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
     {
         OnOscReceived(Address, Data);
     }
+
+private:
+    void BeginDestroy() override;
+    
+private:
+    BasicOscReceiver<AOscReceiverActor> _listener;
 };

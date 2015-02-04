@@ -3,7 +3,7 @@
 #include "OscDataElemStruct.h"
 #include "OscDispatcher.generated.h"
 
-class IOscReceiverInterface;
+struct IOscReceiverInterface;
 class FSocket;
 class FUdpSocketReceiver;
 
@@ -45,4 +45,7 @@ private:
     FSocket * _socket;
     FUdpSocketReceiver * _socketReceiver;
     TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> _pendingMessages;
+
+    /// Protects _receivers
+    FCriticalSection _receiversMutex;
 };

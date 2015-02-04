@@ -70,11 +70,13 @@ void UOscDispatcher::Stop()
 
 void UOscDispatcher::RegisterReceiver(IOscReceiverInterface * receiver)
 {
+    FScopeLock ScopeLock(&_receiversMutex);
     _receivers.AddUnique(receiver);
 }
 
 void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
 {
+    FScopeLock ScopeLock(&_receiversMutex);
     _receivers.Remove(receiver);
 }
 
@@ -176,6 +178,8 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 
 void UOscDispatcher::CallbackMainThread()
 {
+    FScopeLock ScopeLock(&_receiversMutex);
+
     std::pair<FName, TArray<FOscDataElemStruct>> message;
     while(_pendingMessages.Dequeue(message))
     {
