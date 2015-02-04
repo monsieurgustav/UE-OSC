@@ -39,6 +39,17 @@ namespace UnrealBuildTool.Rules
 			);
 
             bEnableExceptions = true;
+
+            if (Target.Type.HasValue && TargetRules.IsEditorType(Target.Type.Value))
+            {
+                Definitions.Add("OSC_EDITOR_BUILD=1");
+
+                PrivateDependencyModuleNames.Add("UnrealEd");
+            }
+            else
+            {
+                Definitions.Add("OSC_EDITOR_BUILD=0");
+            }
         }
 	}
 }

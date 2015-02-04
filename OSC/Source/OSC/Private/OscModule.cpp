@@ -1,6 +1,10 @@
 #include "OscPrivatePCH.h"
 #include "OscDispatcher.h"
 
+#if OSC_EDITOR_BUILD
+#include "Editor.h"
+#endif
+
 
 #define LOCTEXT_NAMESPACE "FOscModule"
 
@@ -15,6 +19,12 @@ public:
             UE_LOG(LogOSC, Error, TEXT("Required module Networking failed to load"));
             return;
         }
+
+#if OSC_EDITOR_BUILD
+        _isPlayingInEditor = false;
+        FEditorDelegates::BeginPIE.AddRaw(this, &FOscModule::OnBeginPIE);
+        FEditorDelegates::EndPIE.AddRaw(this, &FOscModule::OnEndPIE);
+#endif
 
         _dispatcher = UOscDispatcher::Get();
         
@@ -53,7 +63,9 @@ public:
         }
         else
         {
+#if OSC_EDITOR_BUILD
             UE_LOG(LogOSC, Warning, TEXT("Settings changed registration failed"));
+#endif
         }
         UE_LOG(LogOSC, Display, TEXT("Startup succeed"));
     }
@@ -84,17 +96,15 @@ public:
         auto settings = GetMutableDefault<UOscSettings>();
 
         // receive settings
-        FIPv4Address receiveAddress(0);
-        uint32_t receivePort;
-        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort))
+#if OSC_EDITOR_BUILD
+        if(_isPlayingInEditor)
         {
-            _dispatcher->Listen(receiveAddress, receivePort);
+            Listen(settings);
         }
-        else
-        {
-            UE_LOG(LogOSC, Warning, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
-        }
-        
+#else
+        Listen(settings);
+#endif
+
         // send settings
         settings->UpdateSendAddresses();
 
@@ -103,6 +113,40 @@ public:
 
         return true;
     }
+
+    void Listen(UOscSettings * settings)
+    {
+        FIPv4Address receiveAddress(0);
+        uint32_t receivePort;
+        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort))
+        {
+            _dispatcher->Listen(receiveAddress, receivePort);
+        }
+        else
+        {
+            UE_LOG(LogOSC, Error, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
+        }
+    }
+
+private:
+#if OSC_EDITOR_BUILD
+    void OnBeginPIE(bool isSimulating)
+    {
+        _isPlayingInEditor = true;
+
+        check(_dispatcher.IsValid())
+        auto settings = GetMutableDefault<UOscSettings>();
+        Listen(settings);
+    }
+
+	void OnEndPIE(bool isSimulating)
+    {
+        _isPlayingInEditor = false;
+        _dispatcher->Stop();
+    }
+
+    bool _isPlayingInEditor;
+#endif
 
 private:
     

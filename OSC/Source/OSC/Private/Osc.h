@@ -4,6 +4,10 @@
 // Target engine version. Used to enable compatibility code.
 #define OSC_ENGINE_VERSION 40600
 
+#ifndef OSC_EDITOR_BUILD
+#error OSC_EDITOR_BUILD must be set by the OSC.Build.cs
+#endif
+
 
 /* Public Dependencies
  *****************************************************************************/

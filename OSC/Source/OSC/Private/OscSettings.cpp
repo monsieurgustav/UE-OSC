@@ -35,7 +35,7 @@ void UOscSettings::UpdateSendAddresses()
             }
             else
             {
-                UE_LOG(LogOSC, Warning, TEXT("Fail to parse or invalid send address: %s"), *SendTargets[i]);
+                UE_LOG(LogOSC, Error, TEXT("Fail to parse or invalid send address: %s"), *SendTargets[i]);
             }
         }
     }
@@ -69,7 +69,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
     else
     {
-        UE_LOG(LogOSC, Warning, TEXT("Cannot send OSC: invalid targetIndex %d"), targetIndex);
+        UE_LOG(LogOSC, Error, TEXT("Cannot send OSC: invalid targetIndex %d"), targetIndex);
     }
 }
 
