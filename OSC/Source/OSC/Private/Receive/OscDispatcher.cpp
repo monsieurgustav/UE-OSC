@@ -140,14 +140,24 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
     UE_LOG(LogOSC, Verbose, TEXT("OSC Received"));
-    const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
-    if(packet.IsBundle())
+    try
     {
-        SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
+        const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
+        if(packet.IsBundle())
+        {
+            SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
+        }
+        else
+        {
+            SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
+        }
     }
-    else
+    catch(osc::Exception &e)
     {
-        SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
+        // Exceptions are disabled by default, so destructors are not called.
+        // We don't care: there is no acquired resource to release.
+        const FString wide(e.what());
+        UE_LOG(LogOSC, Warning, TEXT("OSC Message Error: %s"), *wide);
     }
     
     if(!_pendingMessages.IsEmpty())

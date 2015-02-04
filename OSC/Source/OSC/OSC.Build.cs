@@ -34,6 +34,8 @@ namespace UnrealBuildTool.Rules
 					"OSC/Private/Send",
 				}
 			);
+
+            bEnableExceptions = true;
         }
 	}
 }
