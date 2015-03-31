@@ -1,9 +1,10 @@
 #pragma once
 
 #include <utility>
+#include "OscReceiverInputKey.h"
+
 #include "OscSettings.generated.h"
 
-class OscReceiverInputKey;
 class UOscDispatcher;
 
 

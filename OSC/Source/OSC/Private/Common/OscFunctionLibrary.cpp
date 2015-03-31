@@ -1,4 +1,5 @@
 #include "OscPrivatePCH.h"
+#include "OscSettings.h"
 #include "OscFunctionLibrary.h"
 #include "oscpack/osc/OscOutboundPacketStream.h"
 

@@ -1,4 +1,5 @@
 #include "OscPrivatePCH.h"
+#include "OscSettings.h"
 #include "OscDispatcher.h"
 
 #if OSC_EDITOR_BUILD
