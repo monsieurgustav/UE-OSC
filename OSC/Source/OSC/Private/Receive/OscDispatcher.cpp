@@ -141,7 +141,6 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
 
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
-    UE_LOG(LogOSC, Verbose, TEXT("OSC Received"));
     try
     {
         const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
@@ -173,6 +172,13 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 #endif
             nullptr,
             ENamedThreads::GameThread);
+    }
+
+    // Log received packet
+    if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
+    {
+        const auto encoded = FBase64::Encode(*data);
+        UE_LOG(LogOSC, Verbose, TEXT("Received: %s"), *encoded);
     }
 }
 

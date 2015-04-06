@@ -60,12 +60,29 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         {
             SendImpl(&_sendSocket.Get(), buffer, length, *address.second);
         }
-        UE_LOG(LogOSC, Verbose, TEXT("OSC sent"));
+
+        // Log sent packet
+        if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
+        {
+            TArray<uint8> tmp;
+            tmp.Append(buffer, length);
+            const auto encoded = FBase64::Encode(tmp);
+            UE_LOG(LogOSC, Verbose, TEXT("SentAll: %s"), *encoded);
+        }
     }
     else if(targetIndex < _sendAddresses.Num())
     {
         SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex].second);
-        UE_LOG(LogOSC, Verbose, TEXT("OSC sent"));
+
+        // Log sent packet
+        if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
+        {
+            TArray<uint8> tmp;
+            tmp.Append(buffer, length);
+            const auto encoded = FBase64::Encode(tmp);
+            const auto target  = _sendAddresses[targetIndex].second->ToString(true);
+            UE_LOG(LogOSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
+        }
     }
     else
     {
