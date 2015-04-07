@@ -6,7 +6,7 @@
 #include "OscReceiverActor.generated.h"
 
 
-UCLASS()
+UCLASS(ClassGroup=OSC)
 class AOscReceiverActor : public AActor
 {
     GENERATED_UCLASS_BODY()
