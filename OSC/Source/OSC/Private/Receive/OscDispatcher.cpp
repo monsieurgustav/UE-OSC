@@ -10,7 +10,7 @@ UOscDispatcher::UOscDispatcher(const class FPostConstructInitializeProperties& P
   _listening(FIPv4Address(0), 0),
   _socket(nullptr),
   _socketReceiver(nullptr),
-  _pendingMessages(64)
+  _pendingMessages(1024)  // arbitrary max message count per frame
 {
 }
 
@@ -119,7 +119,13 @@ static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruc
     }
 
     // save it in pending messages
-    _pendingMessages.Enqueue(std::make_pair(address, data));
+    const auto added = _pendingMessages.Enqueue(std::make_pair(address, data));
+
+    // the circular buffer may be full.
+    if(!added)
+    {
+        UE_LOG(LogOSC, Warning, TEXT("Circular Buffer Full: Message Ignored"));
+    }
 }
 
 static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedBundle & bundle)
@@ -141,6 +147,7 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
 
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
+    const auto wasEmpty = _pendingMessages.IsEmpty();
     try
     {
         const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
@@ -161,7 +168,8 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
         UE_LOG(LogOSC, Warning, TEXT("OSC Message Error: %s"), *wide);
     }
     
-    if(!_pendingMessages.IsEmpty())
+    // Set a single callback in the main thread per frame.
+    if(wasEmpty && !_pendingMessages.IsEmpty())
     {
         FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
             FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
