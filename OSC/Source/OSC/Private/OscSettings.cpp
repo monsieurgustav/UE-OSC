@@ -61,6 +61,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             SendImpl(&_sendSocket.Get(), buffer, length, *address.second);
         }
 
+#if !NO_LOGGING
         // Log sent packet
         if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
         {
@@ -69,11 +70,13 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             const auto encoded = FBase64::Encode(tmp);
             UE_LOG(LogOSC, Verbose, TEXT("SentAll: %s"), *encoded);
         }
+#endif
     }
     else if(targetIndex < _sendAddresses.Num())
     {
         SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex].second);
 
+#if !NO_LOGGING
         // Log sent packet
         if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
         {
@@ -83,6 +86,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             const auto target  = _sendAddresses[targetIndex].second->ToString(true);
             UE_LOG(LogOSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
+#endif
     }
     else
     {

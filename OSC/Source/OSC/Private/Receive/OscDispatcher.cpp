@@ -182,12 +182,14 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
             ENamedThreads::GameThread);
     }
 
+#if !NO_LOGGING
     // Log received packet
     if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
     {
         const auto encoded = FBase64::Encode(*data);
         UE_LOG(LogOSC, Verbose, TEXT("Received: %s"), *encoded);
     }
+#endif
 }
 
 void UOscDispatcher::CallbackMainThread()
