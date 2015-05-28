@@ -7,7 +7,9 @@
 UCLASS()
 class UOscFunctionLibrary : public UBlueprintFunctionLibrary
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
+
+public:
 
     /// Get the next value from an OSC message as a boolean.
     UFUNCTION(BlueprintPure, Category=OSC)

@@ -5,13 +5,18 @@
 #include "oscpack/osc/OscReceivedElements.h"
 
 
-UOscDispatcher::UOscDispatcher(const class FPostConstructInitializeProperties& PCIP)
-: Super(PCIP),
-  _listening(FIPv4Address(0), 0),
+UOscDispatcher::UOscDispatcher()
+: _listening(FIPv4Address(0), 0),
   _socket(nullptr),
   _socketReceiver(nullptr),
   _pendingMessages(1024)  // arbitrary max message count per frame
 {
+}
+
+UOscDispatcher::UOscDispatcher(FVTableHelper & helper)
+: _pendingMessages(0)
+{
+    // Does not need to be a valid object.
 }
 
 UOscDispatcher * UOscDispatcher::Get()
@@ -173,11 +178,7 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
     {
         FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
             FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
-#if OSC_ENGINE_VERSION < 40500
-            TEXT("OscDispatcherProcessMessages"),
-#else
             TStatId(),
-#endif
             nullptr,
             ENamedThreads::GameThread);
     }

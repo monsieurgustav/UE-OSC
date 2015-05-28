@@ -12,14 +12,19 @@ class FUdpSocketReceiver;
 UCLASS()
 class UOscDispatcher : public UObject
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
 
-    friend class OscModule;
+    friend class FOscModule;
 
     void Listen(FIPv4Address address, uint32_t port);
     void Stop();
 
 public:
+    /// Default constructor
+    UOscDispatcher();
+
+    /// Hot reload constructor
+    UOscDispatcher(FVTableHelper & helper);
 
     /// Get the unique instance
     ///

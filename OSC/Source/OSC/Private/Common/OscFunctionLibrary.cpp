@@ -4,11 +4,6 @@
 #include "oscpack/osc/OscOutboundPacketStream.h"
 
 
-UOscFunctionLibrary::UOscFunctionLibrary(const class FPostConstructInitializeProperties& PCIP)
-  : Super(PCIP)
-{
-}
-
 template <class T>
 static inline
 void PopValueImpl(const TArray<FOscDataElemStruct> & input, TArray<FOscDataElemStruct> & output, T & Value)

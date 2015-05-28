@@ -11,9 +11,15 @@ class UOscDispatcher;
 UCLASS(config=Engine)
 class UOscSettings : public UObject
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
 
 public:
+
+    /// Default constructor
+    UOscSettings();
+
+    /// Hot reload constructor
+    UOscSettings(FVTableHelper & helper);
 
     /**
      *  Specify the [address:]port to listen to.

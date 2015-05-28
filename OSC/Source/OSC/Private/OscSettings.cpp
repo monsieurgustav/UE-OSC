@@ -4,12 +4,17 @@
 #include "OscDispatcher.h"
 
 
-UOscSettings::UOscSettings( const class FPostConstructInitializeProperties& PCIP )
- :  Super(PCIP),
-    ReceiveFrom("8000"),
+UOscSettings::UOscSettings()
+ :  ReceiveFrom("8000"),
     _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
 {
     SendTargets.Add(TEXT("127.0.0.1:8000"));
+}
+
+UOscSettings::UOscSettings(FVTableHelper & helper)
+ :  _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
+{
+    // Does not need to be a valid object.
 }
 
 void UOscSettings::UpdateSendAddresses()

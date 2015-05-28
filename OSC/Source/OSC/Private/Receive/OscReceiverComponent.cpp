@@ -3,11 +3,16 @@
 #include "OscDispatcher.h"
 
 
-UOscReceiverComponent::UOscReceiverComponent(const class FPostConstructInitializeProperties& PCIP)
-    : Super(PCIP),
-      _listener(this)
+UOscReceiverComponent::UOscReceiverComponent()
+    : _listener(this)
 {
 
+}
+
+UOscReceiverComponent::UOscReceiverComponent(FVTableHelper & helper)
+    : _listener(this)
+{
+    // Does not need to be a valid object.
 }
 
 void UOscReceiverComponent::OnRegister()

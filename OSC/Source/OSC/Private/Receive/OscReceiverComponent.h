@@ -13,7 +13,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FComponentOscReceivedSignature, con
 UCLASS(ClassGroup=OSC, meta = (BlueprintSpawnableComponent))
 class UOscReceiverComponent : public UActorComponent
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
+
+public:
 
     UPROPERTY(EditAnywhere, Category=OSC)
     FString AddressFilter;
@@ -22,6 +24,12 @@ class UOscReceiverComponent : public UActorComponent
     FComponentOscReceivedSignature OnOscReceived;
 
 public:
+
+    UOscReceiverComponent();
+
+    /// Hot reload constructor
+    UOscReceiverComponent(FVTableHelper & helper);
+
     const FString & GetAddressFilter() const
     {
         return AddressFilter;

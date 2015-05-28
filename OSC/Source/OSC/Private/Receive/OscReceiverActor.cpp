@@ -3,15 +3,20 @@
 #include "OscDispatcher.h"
 
 
-AOscReceiverActor::AOscReceiverActor(const class FPostConstructInitializeProperties& PCIP)
-    : Super(PCIP),
-      _listener(this)
+AOscReceiverActor::AOscReceiverActor()
+    : _listener(this)
 {
     auto instance = UOscDispatcher::Get();
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
         instance->RegisterReceiver(&_listener);
     }
+}
+
+AOscReceiverActor::AOscReceiverActor(FVTableHelper & helper)
+    : _listener(this)
+{
+    // Does not need to be a valid object.
 }
 
 void AOscReceiverActor::BeginDestroy()

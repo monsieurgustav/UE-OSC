@@ -9,7 +9,9 @@
 UCLASS(ClassGroup=OSC)
 class AOscReceiverActor : public AActor
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
+
+public:
 
     UPROPERTY(EditAnywhere, Category=OSC)
     FString AddressFilter;
@@ -18,6 +20,12 @@ class AOscReceiverActor : public AActor
     void OnOscReceived(const FName & Address, const TArray<FOscDataElemStruct> & Data);
 
 public:
+
+    AOscReceiverActor();
+
+    /// Hot reload constructor
+    AOscReceiverActor(FVTableHelper & helper);
+
     const FString & GetAddressFilter() const
     {
         return AddressFilter;
