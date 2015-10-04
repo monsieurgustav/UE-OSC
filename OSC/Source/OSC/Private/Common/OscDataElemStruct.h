@@ -3,7 +3,7 @@
 #include "OscDataElemStruct.generated.h"
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FOscDataElemStruct
 {
     GENERATED_USTRUCT_BODY()
