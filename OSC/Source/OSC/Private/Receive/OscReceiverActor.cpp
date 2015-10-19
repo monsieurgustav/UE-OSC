@@ -10,6 +10,8 @@ AOscReceiverActor::AOscReceiverActor()
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
         instance->RegisterReceiver(&_listener);
+
+        UE_LOG(LogOSC, Verbose, TEXT("Registering actor %s"), *GetName());
     }
 }
 
@@ -25,6 +27,8 @@ void AOscReceiverActor::BeginDestroy()
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
         instance->UnregisterReceiver(&_listener);
+
+        UE_LOG(LogOSC, Verbose, TEXT("Unregistering actor %s"), *GetName());
     }
 
     Super::BeginDestroy();
