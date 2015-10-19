@@ -42,47 +42,9 @@
 #include <cstring> // size_t
 
 #include "OscTypes.h"
-#include "OscException.h"
 
 
 namespace osc{
-
-
-class MalformedPacketException : public Exception{
-public:
-    MalformedPacketException( const char *w="malformed packet" )
-        : Exception( w ) {}
-};
-
-class MalformedMessageException : public Exception{
-public:
-    MalformedMessageException( const char *w="malformed message" )
-        : Exception( w ) {}
-};
-
-class MalformedBundleException : public Exception{
-public:
-    MalformedBundleException( const char *w="malformed bundle" )
-        : Exception( w ) {}
-};
-
-class WrongArgumentTypeException : public Exception{
-public:
-    WrongArgumentTypeException( const char *w="wrong argument type" )
-        : Exception( w ) {}
-};
-
-class MissingArgumentException : public Exception{
-public:
-    MissingArgumentException( const char *w="missing argument" )
-        : Exception( w ) {}
-};
-
-class ExcessArgumentException : public Exception{
-public:
-    ExcessArgumentException( const char *w="too many arguments" )
-        : Exception( w ) {}
-};
 
 
 class ReceivedPacket{
@@ -94,16 +56,16 @@ public:
 
     ReceivedPacket( const char *contents, osc_bundle_element_size_t size )
         : contents_( contents )
-        , size_( ValidateSize(size) ) {}
+        , size_( ValidateSize(size, &state_) ) {}
 
     ReceivedPacket( const char *contents, std::size_t size )
         : contents_( contents )
-        , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
+        , size_( ValidateSize( (osc_bundle_element_size_t)size, &state_ ) ) {}
 
 #if !(defined(__x86_64__) || defined(_M_X64))
     ReceivedPacket( const char *contents, int size )
         : contents_( contents )
-        , size_( ValidateSize( (osc_bundle_element_size_t)size ) ) {}
+        , size_( ValidateSize( (osc_bundle_element_size_t)size, &state_ ) ) {}
 #endif
 
     bool IsMessage() const { return !IsBundle(); }
@@ -111,12 +73,14 @@ public:
 
     osc_bundle_element_size_t Size() const { return size_; }
     const char *Contents() const { return contents_; }
+    Errors State() const { return state_; }
 
 private:
     const char *contents_;
     osc_bundle_element_size_t size_;
+    Errors state_;
 
-    static osc_bundle_element_size_t ValidateSize( osc_bundle_element_size_t size )
+    static osc_bundle_element_size_t ValidateSize( osc_bundle_element_size_t size, Errors * state )
     {
         // sanity check integer types declared in OscTypes.h 
         // you'll need to fix OscTypes.h if any of these asserts fail
@@ -126,14 +90,24 @@ private:
         assert( sizeof(osc::uint64) == 8 );
 
         if( !IsValidElementSizeValue(size) )
-            throw MalformedPacketException( "invalid packet size" );
+        {
+            *state = MALFORMED_PACKET_INVALID_SIZE_ERROR;
+            return 0;
+        }
 
         if( size == 0 )
-            throw MalformedPacketException( "zero length elements not permitted" );
+        {
+            *state = MALFORMED_PACKET_ZERO_SIZE_ERROR;
+            return 0;
+        }
 
         if( !IsMultipleOf4(size) )
-            throw MalformedPacketException( "element size must be multiple of four" );
+        {
+            *state = MALFORMED_PACKET_NOT_MULTIPLE_OF_4_ERROR;
+            return 0;
+        }
 
+        *state = SUCCESS;
         return size;
     }
 };
@@ -222,61 +196,61 @@ public:
 
     bool IsBool() const
         { return *typeTagPtr_ == TRUE_TYPE_TAG || *typeTagPtr_ == FALSE_TYPE_TAG; }
-    bool AsBool() const;
-    bool AsBoolUnchecked() const;
+    bool AsBool(Errors & state) const;
+    bool AsBoolUnchecked(Errors & state) const;
 
     bool IsNil() const { return *typeTagPtr_ == NIL_TYPE_TAG; }
     bool IsInfinitum() const { return *typeTagPtr_ == INFINITUM_TYPE_TAG; }
 
     bool IsInt32() const { return *typeTagPtr_ == INT32_TYPE_TAG; }
-    int32 AsInt32() const;
+    int32 AsInt32(Errors & state) const;
     int32 AsInt32Unchecked() const;
 
     bool IsFloat() const { return *typeTagPtr_ == FLOAT_TYPE_TAG; }
-    float AsFloat() const;
+    float AsFloat(Errors & state) const;
     float AsFloatUnchecked() const;
 
     bool IsChar() const { return *typeTagPtr_ == CHAR_TYPE_TAG; }
-    char AsChar() const;
+    char AsChar(Errors & state) const;
     char AsCharUnchecked() const;
 
     bool IsRgbaColor() const { return *typeTagPtr_ == RGBA_COLOR_TYPE_TAG; }
-    uint32 AsRgbaColor() const;
+    uint32 AsRgbaColor(Errors & state) const;
     uint32 AsRgbaColorUnchecked() const;
 
     bool IsMidiMessage() const { return *typeTagPtr_ == MIDI_MESSAGE_TYPE_TAG; }
-    uint32 AsMidiMessage() const;
+    uint32 AsMidiMessage(Errors & state) const;
     uint32 AsMidiMessageUnchecked() const;
 
     bool IsInt64() const { return *typeTagPtr_ == INT64_TYPE_TAG; }
-    int64 AsInt64() const;
+    int64 AsInt64(Errors & state) const;
     int64 AsInt64Unchecked() const;
 
     bool IsTimeTag() const { return *typeTagPtr_ == TIME_TAG_TYPE_TAG; }
-    uint64 AsTimeTag() const;
+    uint64 AsTimeTag(Errors & state) const;
     uint64 AsTimeTagUnchecked() const;
 
     bool IsDouble() const { return *typeTagPtr_ == DOUBLE_TYPE_TAG; }
-    double AsDouble() const;
+    double AsDouble(Errors & state) const;
     double AsDoubleUnchecked() const;
 
     bool IsString() const { return *typeTagPtr_ == STRING_TYPE_TAG; }
-    const char* AsString() const;
+    const char* AsString(Errors & state) const;
     const char* AsStringUnchecked() const { return argumentPtr_; }
 
     bool IsSymbol() const { return *typeTagPtr_ == SYMBOL_TYPE_TAG; }
-    const char* AsSymbol() const;
+    const char* AsSymbol(Errors & state) const;
     const char* AsSymbolUnchecked() const { return argumentPtr_; }
 
     bool IsBlob() const { return *typeTagPtr_ == BLOB_TYPE_TAG; }
-    void AsBlob( const void*& data, osc_bundle_element_size_t& size ) const;
-    void AsBlobUnchecked( const void*& data, osc_bundle_element_size_t& size ) const;
+    void AsBlob( const void*& data, osc_bundle_element_size_t& size, Errors & state ) const;
+    void AsBlobUnchecked( const void*& data, osc_bundle_element_size_t& size, Errors & state ) const;
     
     bool IsArrayBegin() const { return *typeTagPtr_ == ARRAY_BEGIN_TYPE_TAG; }
     bool IsArrayEnd() const { return *typeTagPtr_ == ARRAY_END_TYPE_TAG; }
     // Calculate the number of top-level items in the array. Nested arrays count as one item.
     // Only valid at array start. Will throw an exception if IsArrayStart() == false.
-    std::size_t ComputeArrayItemCount() const;
+    std::size_t ComputeArrayItemCount(Errors & state) const;
 
 private:
     const char *typeTagPtr_;
@@ -338,11 +312,15 @@ class ReceivedMessageArgumentStream{
     ReceivedMessageArgumentStream( const ReceivedMessageArgumentIterator& begin,
             const ReceivedMessageArgumentIterator& end )
         : p_( begin )
-        , end_( end ) {}
+        , end_( end )
+        , state_( SUCCESS ) {}
 
     ReceivedMessageArgumentIterator p_, end_;
+    Errors state_;
     
 public:
+
+    Errors State() const { return state_; }
 
     // end of stream
     bool Eos() const { return p_ == end_; }
@@ -350,9 +328,13 @@ public:
     ReceivedMessageArgumentStream& operator>>( bool& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsBool();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsBool(state_);
+        }
         return *this;
     }
 
@@ -363,99 +345,143 @@ public:
     ReceivedMessageArgumentStream& operator>>( int32& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsInt32();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsInt32(state_);
+        }
         return *this;
     }     
 
     ReceivedMessageArgumentStream& operator>>( float& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsFloat();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsFloat(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( char& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsChar();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsChar(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( RgbaColor& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs.value = (*p_++).AsRgbaColor();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs.value = (*p_++).AsRgbaColor(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( MidiMessage& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs.value = (*p_++).AsMidiMessage();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs.value = (*p_++).AsMidiMessage(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( int64& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsInt64();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsInt64(state_);
+        }
         return *this;
     }
     
     ReceivedMessageArgumentStream& operator>>( TimeTag& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs.value = (*p_++).AsTimeTag();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs.value = (*p_++).AsTimeTag(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( double& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsDouble();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsDouble(state_);
+        }
         return *this;
     }
 
     ReceivedMessageArgumentStream& operator>>( Blob& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        (*p_++).AsBlob( rhs.data, rhs.size );
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            (*p_++).AsBlob( rhs.data, rhs.size, state_ );
+        }
         return *this;
     }
     
     ReceivedMessageArgumentStream& operator>>( const char*& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs = (*p_++).AsString();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs = (*p_++).AsString(state_);
+        }
         return *this;
     }
     
     ReceivedMessageArgumentStream& operator>>( Symbol& rhs )
     {
         if( Eos() )
-            throw MissingArgumentException();
-
-        rhs.value = (*p_++).AsSymbol();
+        {
+            state_ = MISSING_ARGUMENT_ERROR;
+        }
+        else
+        {
+            rhs.value = (*p_++).AsSymbol(state_);
+        }
         return *this;
     }
 
@@ -463,9 +489,10 @@ public:
     {
         (void) rhs; // suppress unused parameter warning
 
-        if( !Eos() )
-            throw ExcessArgumentException();
-
+        if( Eos() )
+        {
+            state_ = EXCESS_ARGUMENT_ERROR;
+        }
         return *this;
     }
 };
@@ -476,6 +503,8 @@ class ReceivedMessage{
 public:
     explicit ReceivedMessage( const ReceivedPacket& packet );
     explicit ReceivedMessage( const ReceivedBundleElement& bundleElement );
+
+    Errors State() const { return state_; }
 
     const char *AddressPattern() const { return addressPattern_; }
 
@@ -510,6 +539,7 @@ private:
     const char *typeTagsBegin_;
     const char *typeTagsEnd_;
     const char *arguments_;
+    Errors state_;
 };
 
 
@@ -518,6 +548,8 @@ class ReceivedBundle{
 public:
     explicit ReceivedBundle( const ReceivedPacket& packet );
     explicit ReceivedBundle( const ReceivedBundleElement& bundleElement );
+
+    Errors State() const { return state_; }
 
     uint64 TimeTag() const;
 
@@ -539,6 +571,7 @@ private:
     const char *timeTag_;
     const char *end_;
     uint32 elementCount_;
+    Errors state_;
 };
 
 

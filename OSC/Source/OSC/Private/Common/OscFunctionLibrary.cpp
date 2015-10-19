@@ -167,8 +167,20 @@ void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct
         {
             output << elem.AsStringValue().GetPlainANSIString();
         }
+
+        if(output.State() != osc::SUCCESS)
+        {
+            UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+            return;
+        }
     }
     output << osc::EndMessage;
+
+    if(output.State() != osc::SUCCESS)
+    {
+        UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+        return;
+    }
 
     check(reinterpret_cast<const void *>(buffer) == reinterpret_cast<const void *>(output.Data()));
     GetMutableDefault<UOscSettings>()->Send(buffer, output.Size(), TargetIndex);

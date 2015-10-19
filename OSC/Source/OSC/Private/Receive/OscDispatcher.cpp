@@ -87,6 +87,11 @@ void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
 
 static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedMessage & message)
 {
+    if(message.State() != osc::SUCCESS)
+    {
+        UE_LOG(LogOSC, Warning, TEXT("OSC Received Message Error: %s"), osc::errorString(message.State()));
+        return;
+    }
     const FName address(message.AddressPattern());
 
     TArray<FOscDataElemStruct> data;
@@ -114,7 +119,9 @@ static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruc
         }
         else if(it->IsBool())
         {
-            elem.SetBool(it->AsBoolUnchecked());
+            osc::Errors error = osc::SUCCESS;
+            elem.SetBool(it->AsBoolUnchecked(error));
+            check(error == osc::SUCCESS);
         }
         else if(it->IsString())
         {
@@ -135,6 +142,12 @@ static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruc
 
 static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedBundle & bundle)
 {
+    if(bundle.State() != osc::SUCCESS)
+    {
+        UE_LOG(LogOSC, Warning, TEXT("OSC Received Bundle Error: %s"), osc::errorString(bundle.State()));
+        return;
+    }
+
     const auto begin = bundle.ElementsBegin();
     const auto end = bundle.ElementsEnd();
     for(auto it = begin; it != end; ++it)
@@ -153,26 +166,23 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
     const auto wasEmpty = _pendingMessages.IsEmpty();
-    try
+
+    const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
+    if(packet.State() != osc::SUCCESS)
     {
-        const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
-        if(packet.IsBundle())
-        {
-            SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
-        }
-        else
-        {
-            SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
-        }
+        UE_LOG(LogOSC, Warning, TEXT("OSC Received Packet Error: %s"), osc::errorString(packet.State()));
+        return;
     }
-    catch(osc::Exception &e)
+
+    if(packet.IsBundle())
     {
-        // Exceptions are disabled by default, so destructors are not called.
-        // We don't care: there is no acquired resource to release.
-        const FString wide(e.what());
-        UE_LOG(LogOSC, Warning, TEXT("OSC Message Error: %s"), *wide);
+        SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
     }
-    
+    else
+    {
+        SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
+    }
+
     // Set a single callback in the main thread per frame.
     if(wasEmpty && !_pendingMessages.IsEmpty())
     {

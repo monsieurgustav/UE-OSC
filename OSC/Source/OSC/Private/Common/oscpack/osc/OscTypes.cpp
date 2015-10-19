@@ -52,4 +52,52 @@ InfinitumType Infinitum;
 ArrayInitiator BeginArray;
 ArrayTerminator EndArray;
 
+const TCHAR * errorString(Errors value)
+{
+    static const TCHAR * ERROR_STR[] = {
+        TEXT("No Error"),
+
+        TEXT("Malformed packet"),
+        TEXT("Malformed packet: invalid size"),
+        TEXT("Malformed packet: zero size"),
+        TEXT("Malformed packet: not multiple of 4"),
+
+        TEXT("Malformed message"),
+        TEXT("Malformed message: invalid size"),
+        TEXT("Malformed message: zero size"),
+        TEXT("Malformed message: not multiple of 4"),
+        TEXT("Malformed message: invalid blob size"),
+        TEXT("Malformed message: unterminated address pattern"),
+        TEXT("Malformed message: unterminated string"),
+        TEXT("Malformed message: unterminated array"),
+        TEXT("Malformed message: no type tags"),
+        TEXT("Malformed message: unterminated type tags"),
+        TEXT("Malformed message: argument exceed msg size"),
+        TEXT("Malformed message: unknown type tag"),
+
+        TEXT("Malformed bundle"),
+        TEXT("Malformed bundle: invalid size"),
+        TEXT("Malformed bundle: invalid address pattern"),
+        TEXT("Malformed bundle: too short"),
+        TEXT("Malformed bundle: too short for element size"),
+        TEXT("Malformed bundle: too short for element"),
+        TEXT("Malformed bundle: not multiple of 4"),
+        TEXT("Malformed bundle: element not multiple of 4"),
+        TEXT("Malformed bundle: content"),
+
+        TEXT("Wrong argument type"),
+        TEXT("Missing argument"),
+        TEXT("Excess argument"),
+        TEXT("Out of buffer memory"),
+        };
+
+    static_assert((sizeof(ERROR_STR) / sizeof(*ERROR_STR) == ERRORS_COUNT), "Error messages mismatch");
+    if(value < 0 || value >= ERRORS_COUNT)
+    {
+        check(false);
+        return TEXT("Unknown error code");
+    }
+    return ERROR_STR[value];
+}
+
 } // namespace osc

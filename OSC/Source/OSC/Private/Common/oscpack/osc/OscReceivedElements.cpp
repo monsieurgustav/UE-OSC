@@ -202,38 +202,44 @@ osc_bundle_element_size_t ReceivedBundleElement::Size() const
 
 //------------------------------------------------------------------------------
 
-bool ReceivedMessageArgument::AsBool() const
+bool ReceivedMessageArgument::AsBool(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == TRUE_TYPE_TAG )
         return true;
     else if( *typeTagPtr_ == FALSE_TYPE_TAG )
         return false;
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return false;
 }
 
 
-bool ReceivedMessageArgument::AsBoolUnchecked() const
+bool ReceivedMessageArgument::AsBoolUnchecked(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == TRUE_TYPE_TAG )
         return true;
     else
         return false;
+    return false;
 }
 
 
-int32 ReceivedMessageArgument::AsInt32() const
+int32 ReceivedMessageArgument::AsInt32(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == INT32_TYPE_TAG )
         return AsInt32Unchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0;
 }
 
 
@@ -257,14 +263,16 @@ int32 ReceivedMessageArgument::AsInt32Unchecked() const
 }
 
 
-float ReceivedMessageArgument::AsFloat() const
+float ReceivedMessageArgument::AsFloat(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == FLOAT_TYPE_TAG )
         return AsFloatUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0.f;
 }
 
 
@@ -288,14 +296,16 @@ float ReceivedMessageArgument::AsFloatUnchecked() const
 }
 
 
-char ReceivedMessageArgument::AsChar() const
+char ReceivedMessageArgument::AsChar(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == CHAR_TYPE_TAG )
         return AsCharUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return '\0';
 }
 
 
@@ -305,14 +315,16 @@ char ReceivedMessageArgument::AsCharUnchecked() const
 }
 
 
-uint32 ReceivedMessageArgument::AsRgbaColor() const
+uint32 ReceivedMessageArgument::AsRgbaColor(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == RGBA_COLOR_TYPE_TAG )
         return AsRgbaColorUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0u;
 }
 
 
@@ -322,14 +334,16 @@ uint32 ReceivedMessageArgument::AsRgbaColorUnchecked() const
 }
 
 
-uint32 ReceivedMessageArgument::AsMidiMessage() const
+uint32 ReceivedMessageArgument::AsMidiMessage(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == MIDI_MESSAGE_TYPE_TAG )
         return AsMidiMessageUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0u;
 }
 
 
@@ -339,14 +353,16 @@ uint32 ReceivedMessageArgument::AsMidiMessageUnchecked() const
 }
 
 
-int64 ReceivedMessageArgument::AsInt64() const
+int64 ReceivedMessageArgument::AsInt64(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == INT64_TYPE_TAG )
         return AsInt64Unchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0LL;
 }
 
 
@@ -356,14 +372,16 @@ int64 ReceivedMessageArgument::AsInt64Unchecked() const
 }
 
 
-uint64 ReceivedMessageArgument::AsTimeTag() const
+uint64 ReceivedMessageArgument::AsTimeTag(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == TIME_TAG_TYPE_TAG )
         return AsTimeTagUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0ULL;
 }
 
 
@@ -373,14 +391,16 @@ uint64 ReceivedMessageArgument::AsTimeTagUnchecked() const
 }
 
 
-double ReceivedMessageArgument::AsDouble() const
+double ReceivedMessageArgument::AsDouble(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == DOUBLE_TYPE_TAG )
         return AsDoubleUnchecked();
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return 0.;
 }
 
 
@@ -408,55 +428,69 @@ double ReceivedMessageArgument::AsDoubleUnchecked() const
 }
 
 
-const char* ReceivedMessageArgument::AsString() const
+const char* ReceivedMessageArgument::AsString(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == STRING_TYPE_TAG )
         return argumentPtr_;
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return "";
 }
 
 
-const char* ReceivedMessageArgument::AsSymbol() const
+const char* ReceivedMessageArgument::AsSymbol(Errors & state) const
 {
+    state = SUCCESS;
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == SYMBOL_TYPE_TAG )
         return argumentPtr_;
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+    return "";
 }
 
 
-void ReceivedMessageArgument::AsBlob( const void*& data, osc_bundle_element_size_t& size ) const
+void ReceivedMessageArgument::AsBlob( const void*& data, osc_bundle_element_size_t& size, Errors & state ) const
 {
     if( !typeTagPtr_ )
-        throw MissingArgumentException();
+        state = MISSING_ARGUMENT_ERROR;
     else if( *typeTagPtr_ == BLOB_TYPE_TAG )
-        AsBlobUnchecked( data, size );
+        AsBlobUnchecked( data, size, state );
     else
-        throw WrongArgumentTypeException();
+        state = WRONG_ARGUMENT_TYPE_ERROR;
 }
 
 
-void ReceivedMessageArgument::AsBlobUnchecked( const void*& data, osc_bundle_element_size_t& size ) const
+void ReceivedMessageArgument::AsBlobUnchecked( const void*& data, osc_bundle_element_size_t& size, Errors & state ) const
 {
     // read blob size as an unsigned int then validate
     osc_bundle_element_size_t sizeResult = (osc_bundle_element_size_t)ToUInt32( argumentPtr_ );
     if( !IsValidElementSizeValue(sizeResult) )
-        throw MalformedMessageException("invalid blob size");
-
-    size = sizeResult;
-    data = (void*)(argumentPtr_+ osc::OSC_SIZEOF_INT32);
+    {
+        state = MALFORMED_MESSAGE_INVALID_BLOB_SIZE_ERROR;
+    }
+    else
+    {
+        state = SUCCESS;
+        size = sizeResult;
+        data = (void*)(argumentPtr_+ osc::OSC_SIZEOF_INT32);
+    }
 }
 
-std::size_t ReceivedMessageArgument::ComputeArrayItemCount() const
+std::size_t ReceivedMessageArgument::ComputeArrayItemCount(Errors & state) const
 {
     // it is only valid to call ComputeArrayItemCount when the argument is the array start marker
     if( !IsArrayBegin() )
-        throw WrongArgumentTypeException();
+    {
+        state = WRONG_ARGUMENT_TYPE_ERROR;
+        return 0;
+    }
+
+    state = SUCCESS;
 
     std::size_t result = 0;
     unsigned int level = 0;
@@ -561,6 +595,7 @@ void ReceivedMessageArgumentIterator::Advance()
 
 ReceivedMessage::ReceivedMessage( const ReceivedPacket& packet )
     : addressPattern_( packet.Contents() )
+    , state_( SUCCESS )
 {
     Init( packet.Contents(), packet.Size() );
 }
@@ -568,6 +603,7 @@ ReceivedMessage::ReceivedMessage( const ReceivedPacket& packet )
 
 ReceivedMessage::ReceivedMessage( const ReceivedBundleElement& bundleElement )
     : addressPattern_( bundleElement.Contents() )
+    , state_( SUCCESS )
 {
     Init( bundleElement.Contents(), bundleElement.Size() );
 }
@@ -588,20 +624,30 @@ uint32 ReceivedMessage::AddressPatternAsUInt32() const
 void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size )
 {
     if( !IsValidElementSizeValue(size) )
-        throw MalformedMessageException( "invalid message size" );
+    {
+        state_ = MALFORMED_MESSAGE_INVALID_SIZE_ERROR;
+        return;
+    }
 
     if( size == 0 )
-        throw MalformedMessageException( "zero length messages not permitted" );
+    {
+        state_ = MALFORMED_MESSAGE_ZERO_SIZE_ERROR;
+        return;
+    }
 
     if( !IsMultipleOf4(size) )
-        throw MalformedMessageException( "message size must be multiple of four" );
+    {
+        state_ = MALFORMED_MESSAGE_NOT_MULTIPLE_OF_4_ERROR;
+        return;
+    }
 
     const char *end = message + size;
 
     typeTagsBegin_ = FindStr4End( addressPattern_, end );
     if( typeTagsBegin_ == 0 ){
         // address pattern was not terminated before end
-        throw MalformedMessageException( "unterminated address pattern" );
+        state_ = MALFORMED_MESSAGE_UNTERMINATED_ADDRESS_PATTERN_ERROR;
+        return;
     }
 
     if( typeTagsBegin_ == end ){
@@ -612,7 +658,10 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
             
     }else{
         if( *typeTagsBegin_ != ',' )
-            throw MalformedMessageException( "type tags not present" );
+        {
+            state_ = MALFORMED_MESSAGE_NO_TYPE_TAGS_ERROR;
+            return;
+        }
 
         if( *(typeTagsBegin_ + 1) == '\0' ){
             // zero length type tags
@@ -624,8 +673,10 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
             // check that all arguments are present and well formed
                 
             arguments_ = FindStr4End( typeTagsBegin_, end );
-            if( arguments_ == 0 ){
-                throw MalformedMessageException( "type tags were not terminated before end of message" );
+            if( arguments_ == 0 )
+            {
+                state_ = MALFORMED_MESSAGE_UNTERMINATED_TYPE_TAGS_ERROR;
+                return;
             }
 
             ++typeTagsBegin_; // advance past initial ','
@@ -663,10 +714,16 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
                     case MIDI_MESSAGE_TYPE_TAG:
 
                         if( argument == end )
-                            throw MalformedMessageException( "arguments exceed message size" );
+                        {
+                            state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                            return;
+                        }
                         argument += 4;
                         if( argument > end )
-                            throw MalformedMessageException( "arguments exceed message size" );
+                        {
+                            state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                            return;
+                        }
                         break;
 
                     case INT64_TYPE_TAG:
@@ -674,44 +731,66 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
                     case DOUBLE_TYPE_TAG:
 
                         if( argument == end )
-                            throw MalformedMessageException( "arguments exceed message size" );
+                        {
+                            state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                            return;
+                        }
                         argument += 8;
                         if( argument > end )
-                            throw MalformedMessageException( "arguments exceed message size" );
+                        {
+                            state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                            return;
+                        }
                         break;
 
                     case STRING_TYPE_TAG: 
                     case SYMBOL_TYPE_TAG:
                     
                         if( argument == end )
-                            throw MalformedMessageException( "arguments exceed message size" );
+                        {
+                            state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                            return;
+                        }
                         argument = FindStr4End( argument, end );
                         if( argument == 0 )
-                            throw MalformedMessageException( "unterminated string argument" );
+                        {
+                            state_ = MALFORMED_MESSAGE_UNTERMINATED_STRING_ERROR;
+                            return;
+                        }
                         break;
 
                     case BLOB_TYPE_TAG:
                         {
                             if( argument + osc::OSC_SIZEOF_INT32 > end )
-                                MalformedMessageException( "arguments exceed message size" );
+                            {
+                                state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                                return;
+                            }
                                 
                             // treat blob size as an unsigned int for the purposes of this calculation
                             uint32 blobSize = ToUInt32( argument );
                             argument = argument + osc::OSC_SIZEOF_INT32 + RoundUp4( blobSize );
                             if( argument > end )
-                                MalformedMessageException( "arguments exceed message size" );
+                            {
+                                state_ = MALFORMED_MESSAGE_ARGUMENT_EXCEED_MSG_SIZE_ERROR;
+                                return;
+                            }
                         }
                         break;
                         
                     default:
-                        throw MalformedMessageException( "unknown type tag" );
+                        state_ = MALFORMED_MESSAGE_UNKNOWN_TYPE_TAG_ERROR;
+                        return;
                 }
 
             }while( *++typeTag != '\0' );
             typeTagsEnd_ = typeTag;
 
             if( arrayLevel !=  0 )
-                throw MalformedMessageException( "array was not terminated before end of message (expected ']' end of array tag)" );
+            {
+                state_ = MALFORMED_MESSAGE_UNTERMINATED_ARRAY_ERROR;
+                return;
+            }
         }
 
         // These invariants should be guaranteed by the above code.
@@ -728,6 +807,7 @@ void ReceivedMessage::Init( const char *message, osc_bundle_element_size_t size 
 
 ReceivedBundle::ReceivedBundle( const ReceivedPacket& packet )
     : elementCount_( 0 )
+    , state_( SUCCESS )
 {
     Init( packet.Contents(), packet.Size() );
 }
@@ -735,6 +815,7 @@ ReceivedBundle::ReceivedBundle( const ReceivedPacket& packet )
 
 ReceivedBundle::ReceivedBundle( const ReceivedBundleElement& bundleElement )
     : elementCount_( 0 )
+    , state_( SUCCESS )
 {
     Init( bundleElement.Contents(), bundleElement.Size() );
 }
@@ -744,13 +825,22 @@ void ReceivedBundle::Init( const char *bundle, osc_bundle_element_size_t size )
 {
 
     if( !IsValidElementSizeValue(size) )
-        throw MalformedBundleException( "invalid bundle size" );
+    {
+        state_ = MALFORMED_BUNDLE_INVALID_SIZE_ERROR;
+        return;
+    }
 
     if( size < 16 )
-        throw MalformedBundleException( "packet too short for bundle" );
+    {
+        state_ = MALFORMED_BUNDLE_TOO_SHORT_ERROR;
+        return;
+    }
 
     if( !IsMultipleOf4(size) )
-        throw MalformedBundleException( "bundle size must be multiple of four" );
+    {
+        state_ = MALFORMED_BUNDLE_NOT_MULTIPLE_OF_4_ERROR;
+        return;
+    }
 
     if( bundle[0] != '#'
         || bundle[1] != 'b'
@@ -760,7 +850,10 @@ void ReceivedBundle::Init( const char *bundle, osc_bundle_element_size_t size )
         || bundle[5] != 'l'
         || bundle[6] != 'e'
         || bundle[7] != '\0' )
-            throw MalformedBundleException( "bad bundle address pattern" );    
+    {
+        state_ = MALFORMED_BUNDLE_INVALID_ADDRESS_PATTERN_ERROR;
+        return;
+    }
 
     end_ = bundle + size;
 
@@ -770,22 +863,33 @@ void ReceivedBundle::Init( const char *bundle, osc_bundle_element_size_t size )
         
     while( p < end_ ){
         if( p + osc::OSC_SIZEOF_INT32 > end_ )
-            throw MalformedBundleException( "packet too short for elementSize" );
+        {
+            state_ = MALFORMED_BUNDLE_TOO_SHORT_FOR_ELEMENT_SIZE_ERROR;
+            return;
+        }
 
         // treat element size as an unsigned int for the purposes of this calculation
         uint32 elementSize = ToUInt32( p );
         if( (elementSize & ((uint32)0x03)) != 0 )
-            throw MalformedBundleException( "bundle element size must be multiple of four" );
+        {
+            state_ = MALFORMED_BUNDLE_ELEMENT_NOT_MULTIPLE_OF_4_ERROR;
+            return;
+        }
 
         p += osc::OSC_SIZEOF_INT32 + elementSize;
         if( p > end_ )
-            throw MalformedBundleException( "packet too short for bundle element" );
+        {
+            state_ = MALFORMED_BUNDLE_TOO_SHORT_FOR_ELEMENT_ERROR;
+            return;
+        }
 
         ++elementCount_;
     }
 
     if( p != end_ )
-        throw MalformedBundleException( "bundle contents " );
+    {
+        state_ = MALFORMED_BUNDLE_CONTENT_ERROR;
+    }
 }
 
 

@@ -40,43 +40,17 @@
 #include <cstring> // size_t
 
 #include "OscTypes.h"
-#include "OscException.h"
 
 
 namespace osc{
-
-class OutOfBufferMemoryException : public Exception{
-public:
-    OutOfBufferMemoryException( const char *w="out of buffer memory" )
-        : Exception( w ) {}
-};
-
-class BundleNotInProgressException : public Exception{
-public:
-    BundleNotInProgressException(
-            const char *w="call to EndBundle when bundle is not in progress" )
-        : Exception( w ) {}
-};
-
-class MessageInProgressException : public Exception{
-public:
-    MessageInProgressException(
-            const char *w="opening or closing bundle or message while message is in progress" )
-        : Exception( w ) {}
-};
-
-class MessageNotInProgressException : public Exception{
-public:
-    MessageNotInProgressException(
-            const char *w="call to EndMessage when message is not in progress" )
-        : Exception( w ) {}
-};
 
 
 class OutboundPacketStream{
 public:
     OutboundPacketStream( char *buffer, std::size_t capacity );
     ~OutboundPacketStream();
+
+    Errors State() const { return state_; }
 
     void Clear();
 
@@ -130,9 +104,9 @@ private:
     void EndElement( char *endPtr );
 
     bool ElementSizeSlotRequired() const;
-    void CheckForAvailableBundleSpace();
-    void CheckForAvailableMessageSpace( const char *addressPattern );
-    void CheckForAvailableArgumentSpace( std::size_t argumentLength );
+    Errors CheckForAvailableBundleSpace();
+    Errors CheckForAvailableMessageSpace( const char *addressPattern );
+    Errors CheckForAvailableArgumentSpace( std::size_t argumentLength );
 
     char *data_;
     char *end_;
@@ -147,6 +121,8 @@ private:
     uint32 *elementSizePtr_;
 
     bool messageIsInProgress_;
+
+    Errors state_;
 };
 
 } // namespace osc
