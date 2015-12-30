@@ -43,13 +43,14 @@ private:
     void CallbackMainThread();
 
     void BeginDestroy() override;
-
+    
 private:
     TArray<IOscReceiverInterface *> _receivers;
     std::pair<FIPv4Address, uint32_t> _listening;
     FSocket * _socket;
     FUdpSocketReceiver * _socketReceiver;
     TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> _pendingMessages;
+    FGraphEventRef _runPendingMessagesTask;
 
     /// Protects _receivers
     FCriticalSection _receiversMutex;

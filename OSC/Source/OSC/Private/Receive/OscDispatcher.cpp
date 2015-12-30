@@ -165,8 +165,6 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
 
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 {
-    const auto wasEmpty = _pendingMessages.IsEmpty();
-
     const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
     if(packet.State() != osc::SUCCESS)
     {
@@ -184,9 +182,9 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
     }
 
     // Set a single callback in the main thread per frame.
-    if(wasEmpty && !_pendingMessages.IsEmpty())
+    if(!_pendingMessages.IsEmpty() && !_runPendingMessagesTask)
     {
-        FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
+        _runPendingMessagesTask = FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
             FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
             TStatId(),
             nullptr,
@@ -205,6 +203,11 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 
 void UOscDispatcher::CallbackMainThread()
 {
+    // Release before dequeue.
+    // If it was released after dequeue, when a message arrives after the while
+    // loop and before the release, it would not be processed.
+    _runPendingMessagesTask.SafeRelease();
+
     FScopeLock ScopeLock(&_receiversMutex);
 
     std::pair<FName, TArray<FOscDataElemStruct>> message;
