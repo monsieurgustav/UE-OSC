@@ -17,33 +17,57 @@ UOscSettings::UOscSettings(FVTableHelper & helper)
     // Does not need to be a valid object.
 }
 
-void UOscSettings::UpdateSendAddresses()
+void UOscSettings::InitSendTargets()
 {
+    UE_LOG(LogOSC, Display, TEXT("Send targets cleared"));
+
     FString addressStr, portStr;
+
+    _sendAddresses.Empty();
+    _sendAddresses.Reserve(SendTargets.Num());
+
+    _sendAddressesIndex.Empty();
+    _sendAddressesIndex.Reserve(SendTargets.Num());
+
     for(int32 i=0, n=SendTargets.Num(); i!=n; ++i)
     {
-        if(i >= _sendAddresses.Num())
-        {
-            _sendAddresses.Emplace(FString(), ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr());
-        }
-
-        if(_sendAddresses[i].first != SendTargets[i])
-        {
-            FIPv4Address address(0);
-            uint32_t port;
-            if(Parse(SendTargets[i], &address, &port) && address != FIPv4Address::Any)
-            {
-                _sendAddresses[i].second->SetIp(address.GetValue());
-                _sendAddresses[i].second->SetPort(port);
-
-                _sendAddresses[i].first = SendTargets[i];
-            }
-            else
-            {
-                UE_LOG(LogOSC, Error, TEXT("Fail to parse or invalid send address: %s"), *SendTargets[i]);
-            }
-        }
+        const auto result = AddSendTarget(SendTargets[i]);
+        check(result == i);
     }
+}
+
+int32 UOscSettings::GetOrAddSendTarget(const FString & ip_port)
+{
+    const int32 * result = _sendAddressesIndex.Find(ip_port);
+    if(result)
+    {
+        return *result;
+    }
+
+    return AddSendTarget(ip_port);
+}
+
+int32 UOscSettings::AddSendTarget(const FString & ip_port)
+{
+    auto target = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+
+    FIPv4Address address(0);
+    uint32_t port;
+    if(Parse(ip_port, &address, &port) && address != FIPv4Address::Any)
+    {
+        target->SetIp(address.GetValue());
+        target->SetPort(port);
+        UE_LOG(LogOSC, Display, TEXT("Send target added: %s"), *ip_port);
+    }
+    else
+    {
+        UE_LOG(LogOSC, Error, TEXT("Fail to parse or invalid send target: %s"), *ip_port);
+    }
+
+    const auto result = _sendAddresses.Num();
+    _sendAddressesIndex.Emplace(ip_port, result);
+    _sendAddresses.Emplace(target);
+    return result;
 }
 
 static void SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
@@ -63,7 +87,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     {
         for(const auto & address : _sendAddresses)
         {
-            SendImpl(&_sendSocket.Get(), buffer, length, *address.second);
+            SendImpl(&_sendSocket.Get(), buffer, length, *address);
         }
 
 #if !NO_LOGGING
@@ -79,7 +103,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
     else if(targetIndex < _sendAddresses.Num())
     {
-        SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex].second);
+        SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]);
 
 #if !NO_LOGGING
         // Log sent packet
@@ -88,7 +112,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
             const auto encoded = FBase64::Encode(tmp);
-            const auto target  = _sendAddresses[targetIndex].second->ToString(true);
+            const auto target  = _sendAddresses[targetIndex]->ToString(true);
             UE_LOG(LogOSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
 #endif
@@ -99,9 +123,9 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
 }
 
-bool UOscSettings::Parse(const FString & address_port, FIPv4Address * address, uint32_t * port)
+bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port)
 {
-    if(address_port.IsEmpty())
+    if(ip_port.IsEmpty())
     {
         return false;
     }
@@ -110,16 +134,16 @@ bool UOscSettings::Parse(const FString & address_port, FIPv4Address * address, u
     uint32_t portResult;
 
     int32 sep = -1;
-    if(address_port.FindChar(TEXT(':'), sep))
+    if(ip_port.FindChar(TEXT(':'), sep))
     {
-        const auto ip = address_port.Left(sep).Trim();
+        const auto ip = ip_port.Left(sep).Trim();
         if(!FIPv4Address::Parse(ip, addressResult))
         {
             return false;
         }
     }
     
-    portResult = FCString::Atoi(&address_port.GetCharArray()[sep+1]);
+    portResult = FCString::Atoi(&ip_port.GetCharArray()[sep+1]);
     if(portResult == 0)
     {
         return false;

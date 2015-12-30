@@ -91,7 +91,7 @@ public:
 #endif
 
         // send settings
-        settings->UpdateSendAddresses();
+        settings->InitSendTargets();
 
         // input settings
         settings->UpdateKeyInputs(*_dispatcher);

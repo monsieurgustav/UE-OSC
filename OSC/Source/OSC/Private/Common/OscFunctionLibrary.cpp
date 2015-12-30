@@ -185,3 +185,8 @@ void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct
     check(reinterpret_cast<const void *>(buffer) == reinterpret_cast<const void *>(output.Data()));
     GetMutableDefault<UOscSettings>()->Send(buffer, output.Size(), TargetIndex);
 }
+
+int32 UOscFunctionLibrary::AddSendOscTarget(FString IpPort)
+{
+    return GetMutableDefault<UOscSettings>()->GetOrAddSendTarget(IpPort);
+}

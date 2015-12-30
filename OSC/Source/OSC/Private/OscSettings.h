@@ -45,7 +45,9 @@ public:
     TArray<FString> Inputs;
 
 public:
-    void UpdateSendAddresses();
+    void InitSendTargets();
+
+    int32 GetOrAddSendTarget(const FString & ip_port);
 
     void Send(const uint8 *buffer, int32 length, int32 targetIndex);
 
@@ -59,10 +61,14 @@ public:
      *  @brief Parse "8000" and "192.168.0.12" to IP and port values.
      *  @return true if succeed
      */
-    static bool Parse(const FString & address_port, FIPv4Address * address, uint32_t * port);
+    static bool Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port);
+
+private:
+    int32 AddSendTarget(const FString & ip_port);
 
 private:
     TSharedRef<FSocket> _sendSocket;
-    TArray<std::pair<FString, TSharedRef<FInternetAddr>>> _sendAddresses;
+    TArray<TSharedRef<FInternetAddr>> _sendAddresses;
+    TMap<FString, int32> _sendAddressesIndex;
     TArray<OscReceiverInputKey> _keyReceivers;
 };

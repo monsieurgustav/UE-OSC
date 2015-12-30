@@ -87,4 +87,17 @@ public:
      */
     UFUNCTION(BlueprintCallable, Category=OSC, meta=(AutoCreateRefTerm = "Data"))
     static void SendOsc(FName Address, const TArray<FOscDataElemStruct> & Data, int32 TargetIndex);
+
+    /**
+     *  @brief Add Ip:Port to the available OSC send targets.
+     *  @param IpPort "ip:port". e.g. "192.168.0.1:7777"
+     *  @return The created TargetIndex to pass to the SendOsc function.
+     *
+     *  Use this function to add target at runtime. Generally, it is best
+     *  to define your targets in the OSC plugin settings.
+     *
+     *  @see SendOsc
+     */
+    UFUNCTION(BlueprintCallable, Category=OSC)
+    static int32 AddSendOscTarget(FString IpPort);
 };
