@@ -50,7 +50,7 @@ private:
     FSocket * _socket;
     FUdpSocketReceiver * _socketReceiver;
     TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> _pendingMessages;
-    FGraphEventRef _runPendingMessagesTask;
+    int32 _taskSpawned;
 
     /// Protects _receivers
     FCriticalSection _receiversMutex;

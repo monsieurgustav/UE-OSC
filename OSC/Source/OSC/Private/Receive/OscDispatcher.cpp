@@ -9,7 +9,8 @@ UOscDispatcher::UOscDispatcher()
 : _listening(FIPv4Address(0), 0),
   _socket(nullptr),
   _socketReceiver(nullptr),
-  _pendingMessages(1024)  // arbitrary max message count per frame
+  _pendingMessages(1024),  // arbitrary max message count per frame
+  _taskSpawned(0)
 {
 }
 
@@ -182,9 +183,10 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
     }
 
     // Set a single callback in the main thread per frame.
-    if(!_pendingMessages.IsEmpty() && !_runPendingMessagesTask)
+    if(!_pendingMessages.IsEmpty() && !FPlatformAtomics::InterlockedCompareExchange(&_taskSpawned, 1, 0))
     {
-        _runPendingMessagesTask = FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
+        check(_taskSpawned == 1);
+        FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(
             FSimpleDelegateGraphTask::FDelegate::CreateUObject(this, &UOscDispatcher::CallbackMainThread),
             TStatId(),
             nullptr,
@@ -206,7 +208,8 @@ void UOscDispatcher::CallbackMainThread()
     // Release before dequeue.
     // If it was released after dequeue, when a message arrives after the while
     // loop and before the release, it would not be processed.
-    _runPendingMessagesTask.SafeRelease();
+    check(_taskSpawned == 1);
+    FPlatformAtomics::InterlockedCompareExchange(&_taskSpawned, 0, 1);
 
     FScopeLock ScopeLock(&_receiversMutex);
 
