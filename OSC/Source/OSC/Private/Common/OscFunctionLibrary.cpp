@@ -135,68 +135,148 @@ FOscDataElemStruct UOscFunctionLibrary::FromString(FName input)
 }
 
 
-void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct> & Data, int32 TargetIndex)
+namespace
 {
-    if(!Address.IsValid())
+    bool isValidAddress(const FName & Address)
     {
-        UE_LOG(LogOSC, Error, TEXT("Empty OSC address"));
-        return;
+        if(!Address.IsValid())
+        {
+            UE_LOG(LogOSC, Error, TEXT("Empty OSC address"));
+            return false;
+        }
+
+        if(Address.GetDisplayNameEntry()->IsWide())
+        {
+            const auto tmp = Address.GetPlainNameString();
+            UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
+            return false;
+        }
+
+        if(Address.GetPlainANSIString()[0] != '/')
+        {
+            const auto tmp = Address.GetPlainNameString();
+            UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
+            return false;
+        }
+
+        return true;
     }
 
-    if(Address.GetDisplayNameEntry()->IsWide())
+    void appendMessage(osc::OutboundPacketStream & output, FName Address, const TArray<FOscDataElemStruct> & Data)
     {
-        const auto tmp = Address.GetPlainNameString();
-        UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
-        return;
-    }
-
-    if(Address.GetPlainANSIString()[0] != '/')
-    {
-        const auto tmp = Address.GetPlainNameString();
-        UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
-        return;
-    }
-    
-    static_assert(sizeof(uint8) == sizeof(char), "Cannot cast uint8 to char");
-    uint8 buffer[1024];
-
-    osc::OutboundPacketStream output((char *)buffer, sizeof(buffer));
-    output << osc::BeginMessage(Address.GetPlainANSIString());
-    for(const auto & elem : Data)
-    {
-        if(elem.IsFloat())
-        {
-            output << (float)elem.AsFloatValue();
-        }
-        else if(elem.IsInt())
-        {
-            output << (int32)elem.AsIntValue();
-        }
-        else if(elem.IsBool())
-        {
-            output << elem.AsBoolValue();
-        }
-        else if(elem.IsString())
-        {
-            output << elem.AsStringValue().GetPlainANSIString();
-        }
-
+        output << osc::BeginMessage(Address.GetPlainANSIString());
         if(output.State() != osc::SUCCESS)
         {
-            UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+            return;
+        }
+
+        for(const auto & elem : Data)
+        {
+            if(elem.IsFloat())
+            {
+                output << (float)elem.AsFloatValue();
+            }
+            else if(elem.IsInt())
+            {
+                output << (int32)elem.AsIntValue();
+            }
+            else if(elem.IsBool())
+            {
+                output << elem.AsBoolValue();
+            }
+            else if(elem.IsString())
+            {
+                output << elem.AsStringValue().GetPlainANSIString();
+            }
+
+            if(output.State() != osc::SUCCESS)
+            {
+                return;
+            }
+        }
+        output << osc::EndMessage;
+    }
+
+    TArray<uint8> GlobalBuffer(TArray<uint8>(), 1024);
+}
+
+void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct> & Data, int32 TargetIndex)
+{
+    if(!isValidAddress(Address))
+    {
+        return;
+    }
+
+    static_assert(sizeof(uint8) == sizeof(char), "Cannot cast uint8 to char");
+
+    osc::OutboundPacketStream output((char *)GlobalBuffer.GetData(), GlobalBuffer.Max());
+    check(reinterpret_cast<const void *>(GlobalBuffer.GetData()) == reinterpret_cast<const void *>(output.Data()));
+
+    appendMessage(output, Address, Data);
+
+    if(output.State() == osc::OUT_OF_BUFFER_MEMORY_ERROR)
+    {
+        GlobalBuffer.Reserve(GlobalBuffer.Max() * 2);  // not enough memory: double the size
+        SendOsc(Address, Data, TargetIndex);  // try again
+        return;
+    }
+
+    if(output.State() == osc::SUCCESS)
+    {
+        GetMutableDefault<UOscSettings>()->Send(GlobalBuffer.GetData(), output.Size(), TargetIndex);
+    }
+    else
+    {
+        UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+    }
+}
+
+void UOscFunctionLibrary::SendOscBundle(const TArray<FOscMessageStruct> & Messages, int32 TargetIndex)
+{
+    static_assert(sizeof(uint8) == sizeof(char), "Cannot cast uint8 to char");
+
+    osc::OutboundPacketStream output((char *)GlobalBuffer.GetData(), GlobalBuffer.Max());
+    check(reinterpret_cast<const void *>(GlobalBuffer.GetData()) == reinterpret_cast<const void *>(output.Data()));
+
+    output << osc::BeginBundle();
+    for(const auto & message : Messages)
+    {
+        if(!isValidAddress(message.Address))
+        {
+            return;
+        }
+
+        appendMessage(output, message.Address, message.Data);
+
+        if(output.State() == osc::OUT_OF_BUFFER_MEMORY_ERROR)
+        {
+            GlobalBuffer.Reserve(GlobalBuffer.Max() * 2);  // not enough memory: double the size
+            SendOscBundle(Messages, TargetIndex);  // try again
+            return;
+        }
+        if(output.State() != osc::SUCCESS)
+        {
+            UE_LOG(LogOSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
             return;
         }
     }
-    output << osc::EndMessage;
+    output << osc::EndBundle;
 
-    if(output.State() != osc::SUCCESS)
+    if(output.State() == osc::OUT_OF_BUFFER_MEMORY_ERROR)
     {
-        UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+        GlobalBuffer.Reserve(GlobalBuffer.Max() * 2);  // not enough memory: double the size
+        SendOscBundle(Messages, TargetIndex);  // try again
         return;
     }
 
-    check(reinterpret_cast<const void *>(buffer) == reinterpret_cast<const void *>(output.Data()));
-    GetMutableDefault<UOscSettings>()->Send(buffer, output.Size(), TargetIndex);
+    if(output.State() == osc::SUCCESS)
+    {
+        GetMutableDefault<UOscSettings>()->Send(GlobalBuffer.GetData(), output.Size(), TargetIndex);
+    }
+    else
+    {
+        UE_LOG(LogOSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
+    }
 }
 
 int32 UOscFunctionLibrary::AddSendOscTarget(FString IpPort)

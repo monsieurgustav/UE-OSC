@@ -321,7 +321,7 @@ bool OutboundPacketStream::IsBundleInProgress() const
 OutboundPacketStream& OutboundPacketStream::operator<<( const BundleInitiator& rhs )
 {
     check( !IsMessageInProgress() )
-
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableBundleSpace();
     if(state_ == SUCCESS)
     {
@@ -344,6 +344,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const BundleTerminator& 
 
     check( IsBundleInProgress() )
     check( !IsMessageInProgress() )
+    check( state_ == SUCCESS )
 
     EndElement( messageCursor_ );
 
@@ -354,6 +355,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const BundleTerminator& 
 OutboundPacketStream& OutboundPacketStream::operator<<( const BeginMessage& rhs )
 {
     check( !IsMessageInProgress() )
+    check( state_ == SUCCESS )
 
     state_ = CheckForAvailableMessageSpace( rhs.addressPattern );
 
@@ -387,6 +389,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const MessageTerminator&
     (void) rhs;
 
     check( IsMessageInProgress() )
+    check( state_ == SUCCESS )
 
     std::size_t typeTagsCount = end_ - typeTagsCurrent_;
 
@@ -436,6 +439,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const MessageTerminator&
 
 OutboundPacketStream& OutboundPacketStream::operator<<( bool rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(0);
     if(state_ == SUCCESS)
     {
@@ -449,6 +453,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( bool rhs )
 OutboundPacketStream& OutboundPacketStream::operator<<( const NilType& rhs )
 {
     (void) rhs;
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(0);
     if(state_ == SUCCESS)
     {
@@ -462,6 +467,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const NilType& rhs )
 OutboundPacketStream& OutboundPacketStream::operator<<( const InfinitumType& rhs )
 {
     (void) rhs;
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(0);
     if(state_ == SUCCESS)
     {
@@ -474,6 +480,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const InfinitumType& rhs
 
 OutboundPacketStream& OutboundPacketStream::operator<<( int32 rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(4);
     if(state_ == SUCCESS)
     {
@@ -488,6 +495,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( int32 rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( float rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(4);
     if(state_ == SUCCESS)
     {
@@ -518,6 +526,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( float rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( char rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(4);
     if(state_ == SUCCESS)
     {
@@ -532,6 +541,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( char rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const RgbaColor& rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(4);
     if(state_ == SUCCESS)
     {
@@ -546,6 +556,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const RgbaColor& rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const MidiMessage& rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(4);
     if(state_ == SUCCESS)
     {
@@ -560,6 +571,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const MidiMessage& rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( int64 rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(8);
     if(state_ == SUCCESS)
     {
@@ -574,6 +586,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( int64 rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const TimeTag& rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(8);
     if(state_ == SUCCESS)
     {
@@ -588,6 +601,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const TimeTag& rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( double rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(8);
     if(state_ == SUCCESS)
     {
@@ -622,6 +636,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( double rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const char *rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace( RoundUp4(std::strlen(rhs) + 1) );
     if(state_ == SUCCESS)
     {
@@ -644,6 +659,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const char *rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const Symbol& rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace( RoundUp4(std::strlen(rhs) + 1) );
     if(state_ == SUCCESS)
     {
@@ -666,6 +682,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const Symbol& rhs )
 
 OutboundPacketStream& OutboundPacketStream::operator<<( const Blob& rhs )
 {
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace( 4 + RoundUp4(rhs.size) );
     if(state_ == SUCCESS)
     {
@@ -690,6 +707,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const Blob& rhs )
 OutboundPacketStream& OutboundPacketStream::operator<<( const ArrayInitiator& rhs )
 {
     (void) rhs;
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(0);
     if(state_ == SUCCESS)
     {
@@ -702,6 +720,7 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const ArrayInitiator& rh
 OutboundPacketStream& OutboundPacketStream::operator<<( const ArrayTerminator& rhs )
 {
     (void) rhs;
+    check( state_ == SUCCESS )
     state_ = CheckForAvailableArgumentSpace(0);
     if(state_ == SUCCESS)
     {
