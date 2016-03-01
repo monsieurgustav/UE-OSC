@@ -137,10 +137,23 @@ FOscDataElemStruct UOscFunctionLibrary::FromString(FName input)
 
 void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct> & Data, int32 TargetIndex)
 {
+    if(!Address.IsValid())
+    {
+        UE_LOG(LogOSC, Error, TEXT("Empty OSC address"));
+        return;
+    }
+
     if(Address.GetDisplayNameEntry()->IsWide())
     {
         const auto tmp = Address.GetPlainNameString();
         UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
+        return;
+    }
+
+    if(Address.GetPlainANSIString()[0] != '/')
+    {
+        const auto tmp = Address.GetPlainNameString();
+        UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
         return;
     }
     
