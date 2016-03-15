@@ -24,7 +24,7 @@ private:
         return _address;
     }
 
-    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data) override;
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp) override;
 
 private:
     FString _address;

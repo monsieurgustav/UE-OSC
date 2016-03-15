@@ -86,7 +86,9 @@ void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
     _receivers.Remove(receiver);
 }
 
-static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedMessage & message)
+static void SendMessage(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>> & _pendingMessages,
+                        const osc::ReceivedMessage & message,
+                        const FIPv4Address & senderIp)
 {
     if(message.State() != osc::SUCCESS)
     {
@@ -132,7 +134,7 @@ static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruc
     }
 
     // save it in pending messages
-    const auto added = _pendingMessages.Enqueue(std::make_pair(address, data));
+    const auto added = _pendingMessages.Enqueue(std::make_tuple(address, data, senderIp));
 
     // the circular buffer may be full.
     if(!added)
@@ -141,7 +143,9 @@ static void SendMessage(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruc
     }
 }
 
-static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct>>> & _pendingMessages, const osc::ReceivedBundle & bundle)
+static void SendBundle(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>> & _pendingMessages,
+                       const osc::ReceivedBundle & bundle,
+                       const FIPv4Address & senderIp)
 {
     if(bundle.State() != osc::SUCCESS)
     {
@@ -155,16 +159,16 @@ static void SendBundle(TCircularQueue<std::pair<FName, TArray<FOscDataElemStruct
     {
         if(it->IsBundle())
         {
-            SendBundle(_pendingMessages, osc::ReceivedBundle(*it));
+            SendBundle(_pendingMessages, osc::ReceivedBundle(*it), senderIp);
         }
         else
         {
-            SendMessage(_pendingMessages, osc::ReceivedMessage(*it));
+            SendMessage(_pendingMessages, osc::ReceivedMessage(*it), senderIp);
         }
     }
 }
 
-void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
+void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint& endpoint)
 {
     const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
     if(packet.State() != osc::SUCCESS)
@@ -175,11 +179,11 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&)
 
     if(packet.IsBundle())
     {
-        SendBundle(_pendingMessages, osc::ReceivedBundle(packet));
+        SendBundle(_pendingMessages, osc::ReceivedBundle(packet), endpoint.GetAddress());
     }
     else
     {
-        SendMessage(_pendingMessages, osc::ReceivedMessage(packet));
+        SendMessage(_pendingMessages, osc::ReceivedMessage(packet), endpoint.GetAddress());
     }
 
     // Set a single callback in the main thread per frame.
@@ -213,12 +217,14 @@ void UOscDispatcher::CallbackMainThread()
 
     FScopeLock ScopeLock(&_receiversMutex);
 
-    std::pair<FName, TArray<FOscDataElemStruct>> message;
+    std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address> message;
     while(_pendingMessages.Dequeue(message))
     {
+        const FIPv4Address & senderIp = std::get<2>(message);
+        FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.GetByte(3), senderIp.GetByte(2), senderIp.GetByte(1), senderIp.GetByte(0));
         for(auto receiver : _receivers)
         {
-            receiver->SendEvent(message.first, message.second);
+            receiver->SendEvent(std::get<0>(message), std::get<1>(message), senderIpStr);
         }
     }
 }

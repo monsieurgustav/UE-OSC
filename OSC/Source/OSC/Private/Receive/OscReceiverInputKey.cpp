@@ -36,7 +36,7 @@ void OscReceiverInputKey::RegisterKey() const
     }
 }
 
-void OscReceiverInputKey::SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
+void OscReceiverInputKey::SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp)
 {
     if(Address != _addressName)
     {

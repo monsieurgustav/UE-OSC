@@ -17,7 +17,7 @@ public:
     FString AddressFilter;
 
     UFUNCTION(BlueprintImplementableEvent, Category=OSC)
-    void OnOscReceived(const FName & Address, const TArray<FOscDataElemStruct> & Data);
+    void OnOscReceived(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp);
 
 public:
 
@@ -31,9 +31,9 @@ public:
         return AddressFilter;
     }
 
-    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp)
     {
-        OnOscReceived(Address, Data);
+        OnOscReceived(Address, Data, SenderIp);
     }
 
 private:

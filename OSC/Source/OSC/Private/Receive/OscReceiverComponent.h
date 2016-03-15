@@ -7,7 +7,7 @@
 
 
 // declare the OnOscReceived event type
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FComponentOscReceivedSignature, const FName &, Address, const TArray<FOscDataElemStruct> &, Data);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FComponentOscReceivedSignature, const FName &, Address, const TArray<FOscDataElemStruct> &, Data, const FString &, SenderIp);
 
 
 UCLASS(ClassGroup=OSC, meta = (BlueprintSpawnableComponent))
@@ -35,9 +35,9 @@ public:
         return AddressFilter;
     }
 
-    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data)
+    void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp)
     {
-        OnOscReceived.Broadcast(Address, Data);
+        OnOscReceived.Broadcast(Address, Data, SenderIp);
     }
 
 private:
