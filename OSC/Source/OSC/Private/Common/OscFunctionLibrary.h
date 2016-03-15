@@ -84,7 +84,7 @@ public:
      *  @brief Send an OSC message.
      *  @param Address OSC address.
      *  @param Data result of successive PushFloat/Int/String/etc.
-     *  @param Index index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
+     *  @param TargetIndex index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
      */
     UFUNCTION(BlueprintCallable, Category=OSC, meta=(AutoCreateRefTerm = "Data"))
     static void SendOsc(FName Address, const TArray<FOscDataElemStruct> & Data, int32 TargetIndex);
@@ -92,7 +92,7 @@ public:
     /**
     *  @brief Send several OSC messages in an OSC bundle.
     *  @param Messages of the bundle.
-    *  @param Index index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
+    *  @param TargetIndex index of the destination, -1 for all destinations. (SendTarget list of the plugin settings)
     */
     UFUNCTION(BlueprintCallable, Category=OSC)
     static void SendOscBundle(const TArray<FOscMessageStruct> & Messages, int32 TargetIndex);
