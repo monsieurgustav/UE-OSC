@@ -22,7 +22,7 @@ public:
         }
 
 #if OSC_EDITOR_BUILD
-        _isPlayingInEditor = false;
+        _mustListen = !GIsEditor;  // must not listen now if IsEditor (listen when PIE), else (Standalone Game) listen now
         FEditorDelegates::BeginPIE.AddRaw(this, &FOscModule::OnBeginPIE);
         FEditorDelegates::EndPIE.AddRaw(this, &FOscModule::OnEndPIE);
 #endif
@@ -82,7 +82,7 @@ public:
 
         // receive settings
 #if OSC_EDITOR_BUILD
-        if(_isPlayingInEditor)
+        if(_mustListen)
         {
             Listen(settings);
         }
@@ -117,7 +117,7 @@ private:
 #if OSC_EDITOR_BUILD
     void OnBeginPIE(bool isSimulating)
     {
-        _isPlayingInEditor = true;
+        _mustListen = true;
 
         check(_dispatcher.IsValid())
         auto settings = GetMutableDefault<UOscSettings>();
@@ -126,11 +126,11 @@ private:
 
 	void OnEndPIE(bool isSimulating)
     {
-        _isPlayingInEditor = false;
+        _mustListen = false;
         _dispatcher->Stop();
     }
 
-    bool _isPlayingInEditor;
+    bool _mustListen;
 #endif
 
 private:
