@@ -1,0 +1,25 @@
+{
+	"FileVersion" : 3,
+	
+	"FriendlyName" : "OSC",
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"CreatedBy" : "Guillaume Buisson",
+	"CreatedByURL" : "http://guillaume.io",
+	"EngineVersion" : "4.4.0",
+	"Description" : "",
+	"Category" : "OSC",
+	"EnabledByDefault" : false,
+
+	"Modules" :
+	[
+		{
+			"Name" : "OSC",
+			"Type" : "Runtime",
+			"LoadingPhase" : "PreDefault",
+			"BlacklistPlatforms" : [ "HTML5" ]
+		}
+	],
+
+	"CanContainContent" : false
+}
