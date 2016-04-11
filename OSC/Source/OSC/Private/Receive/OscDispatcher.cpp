@@ -180,11 +180,11 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint& 
 
     if(packet.IsBundle())
     {
-        SendBundle(_pendingMessages, osc::ReceivedBundle(packet), endpoint.Address);
+        SendBundle(_pendingMessages, osc::ReceivedBundle(packet), endpoint.GetAddress());
     }
     else
     {
-        SendMessage(_pendingMessages, osc::ReceivedMessage(packet), endpoint.Address);
+        SendMessage(_pendingMessages, osc::ReceivedMessage(packet), endpoint.GetAddress());
     }
 
     // Set a single callback in the main thread per frame.
@@ -222,7 +222,7 @@ void UOscDispatcher::CallbackMainThread()
     while(_pendingMessages.Dequeue(message))
     {
         const FIPv4Address & senderIp = std::get<2>(message);
-        FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.A, senderIp.B, senderIp.C, senderIp.D);
+        FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.GetByte(3), senderIp.GetByte(2), senderIp.GetByte(1), senderIp.GetByte(0));
         for(auto receiver : _receivers)
         {
             receiver->SendEvent(std::get<0>(message), std::get<1>(message), senderIpStr);
