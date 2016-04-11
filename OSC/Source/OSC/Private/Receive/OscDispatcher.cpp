@@ -47,7 +47,7 @@ void UOscDispatcher::Listen(FIPv4Address address, uint32_t port)
         {
             _socketReceiver = new FUdpSocketReceiver(_socket, FTimespan::FromMilliseconds(100), TEXT("OSCListener"));
             _socketReceiver->OnDataReceived().BindUObject(this, &UOscDispatcher::Callback);
-            _socketReceiver->Start();
+            _socketReceiver->Run();
 
             _listening = std::make_pair(address, port);
             UE_LOG(LogOSC, Display, TEXT("Listen to port %d"), port);
