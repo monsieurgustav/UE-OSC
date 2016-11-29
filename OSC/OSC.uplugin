@@ -9,7 +9,7 @@
 	"EngineVersion" : "4.4.0",
 	"Description" : "",
 	"Category" : "OSC",
-	"EnabledByDefault" : false,
+	"EnabledByDefault" : true,
 
 	"Modules" :
 	[
