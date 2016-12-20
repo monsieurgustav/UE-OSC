@@ -8,7 +8,7 @@
 class UOscDispatcher;
 
 
-UCLASS(config=Engine)
+UCLASS(Config=Engine, DefaultConfig)
 class UOscSettings : public UObject
 {
     GENERATED_BODY()
