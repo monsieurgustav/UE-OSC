@@ -105,7 +105,7 @@ public:
         uint32_t receivePort;
         if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort))
         {
-            _dispatcher->Listen(receiveAddress, receivePort);
+            _dispatcher->Listen(receiveAddress, receivePort, settings->MulticastLoopback);
         }
         else
         {

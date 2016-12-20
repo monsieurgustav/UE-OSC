@@ -6,6 +6,7 @@
 
 UOscSettings::UOscSettings()
  :  ReceiveFrom("8000"),
+    MulticastLoopback(true),
     _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
 {
     SendTargets.Add(TEXT("127.0.0.1:8000"));

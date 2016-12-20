@@ -44,6 +44,9 @@ public:
     UPROPERTY(Config, EditAnywhere, Category=Input)
     TArray<FString> Inputs;
 
+    UPROPERTY(Config, EditAnywhere, Category=Network)
+    bool MulticastLoopback;
+
 public:
     void InitSendTargets();
 
