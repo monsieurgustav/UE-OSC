@@ -131,6 +131,25 @@ static void SendMessage(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStru
         {
             elem.SetString(FName(it->AsStringUnchecked()));
         }
+        else if(it->IsBlob())
+        {
+            const void* buffer;
+            osc::osc_bundle_element_size_t size;
+            osc::Errors error = osc::SUCCESS;
+            it->AsBlobUnchecked(buffer, size, error);
+
+            TArray<uint8> blob;
+            if(size && !error)
+            {
+                blob.SetNumUninitialized(size);
+                FMemory::Memcpy(blob.GetData(), buffer, size);
+            }
+            else if(error)
+            {
+                UE_LOG(LogOSC, Warning, TEXT("OSC Received Message Error: %s"), osc::errorString(error));
+            }
+            elem.SetBlob(std::move(blob));
+        }
         data.Add(elem);
     }
 
