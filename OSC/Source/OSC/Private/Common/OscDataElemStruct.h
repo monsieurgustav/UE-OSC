@@ -112,7 +112,7 @@ public:
     {
         Data = 0;
         Type = BLOB;
-        Blob = MakeShared<TArray<uint8>>(std::move(value));
+        Blob = MakeShareable(&value);
     }
 
     const TArray<uint8> & AsBlobValue() const
