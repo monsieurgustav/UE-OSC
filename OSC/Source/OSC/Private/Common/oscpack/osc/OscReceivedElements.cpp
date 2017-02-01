@@ -86,13 +86,6 @@ static inline const char* FindStr4End( const char *p, const char *end )
 }
 
 
-// round up to the next highest multiple of 4. unless x is already a multiple of 4
-static inline uint32 RoundUp4( uint32 x ) 
-{
-    return (x + 3) & ~((uint32)0x03);
-}
-
-
 static inline int32 ToInt32( const char *p )
 {
 #ifdef OSC_HOST_LITTLE_ENDIAN
