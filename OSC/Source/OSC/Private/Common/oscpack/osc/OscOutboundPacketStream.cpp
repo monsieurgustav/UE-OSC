@@ -148,13 +148,6 @@ static void FromUInt64( char *p, uint64 x )
 }
 
 
-// round up to the next highest multiple of 4. unless x is already a multiple of 4
-static inline std::size_t RoundUp4( std::size_t x ) 
-{
-    return (x + 3) & ~((std::size_t)0x03);
-}
-
-
 OutboundPacketStream::OutboundPacketStream( char *buffer, std::size_t capacity )
     : data_( buffer )
     , end_( data_ + capacity )
