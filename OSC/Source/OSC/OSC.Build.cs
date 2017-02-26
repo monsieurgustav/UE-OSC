@@ -38,7 +38,7 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
-            if (Target.Type.HasValue && TargetRules.IsEditorType(Target.Type.Value))
+            if (Target.Type.HasValue && Target.Type.Value == TargetRules.TargetType.Editor)
             {
                 Definitions.Add("OSC_EDITOR_BUILD=1");
 
