@@ -6,6 +6,7 @@
 /// Base class to receive OSC messages.
 struct IOscReceiverInterface
 {
+    virtual ~IOscReceiverInterface()  {}
     virtual const FString & GetAddressFilter() const = 0;
     virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp) = 0;
 };
