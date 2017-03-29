@@ -56,7 +56,7 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
     uint32_t port;
     if(Parse(ip_port, &address, &port) && address != FIPv4Address::Any)
     {
-        target->SetIp(address.Value);
+        target->SetIp(address.GetValue());
         target->SetPort(port);
         UE_LOG(LogOSC, Display, TEXT("Send target added: %s"), *ip_port);
     }
