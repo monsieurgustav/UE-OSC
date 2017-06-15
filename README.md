@@ -97,3 +97,5 @@ This plugin implements them as "Array<uint8>". It plays nicely with the "Extende
 # Engine version
 
 Get the right branch for your engine version: "master" for the latest version, "before4.8" for 4.4, ..., 4.7, etc.
+
+If the plugin does not work/build for the current version, feel free to create an issue or email me!
