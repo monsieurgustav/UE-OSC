@@ -15,7 +15,7 @@ class FOscModule : public IModuleInterface
 public:
     virtual void StartupModule( ) override
     {
-        if(!FModuleManager::Get().LoadModule(TEXT("Networking")).IsValid())
+        if(!FModuleManager::Get().LoadModule(TEXT("Networking")))
         {
             UE_LOG(LogOSC, Error, TEXT("Required module Networking failed to load"));
             return;
