@@ -71,29 +71,41 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
     return result;
 }
 
-static void SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
+static bool SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
 {
     int32 bytesSent = 0;
     while(length > 0)
     {
         socket->SendTo(buffer, length, bytesSent, target);
+        if( bytesSent < 0 )
+        {
+            return false;
+        }
         length -= bytesSent;
         buffer += bytesSent;
     }
+
+    return true;
 }
 
 void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
 {
     if(targetIndex == -1)
     {
+        bool error = false;
         for(const auto & address : _sendAddresses)
         {
-            SendImpl(&_sendSocket.Get(), buffer, length, *address);
+            if(!SendImpl(&_sendSocket.Get(), buffer, length, *address))
+            {
+                const auto target = address->ToString(true);
+                UE_LOG(LogOSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
+                error = true;
+            }
         }
 
 #if !NO_LOGGING
         // Log sent packet
-        if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
+        if(!error && !LogOSC.IsSuppressed(ELogVerbosity::Verbose))
         {
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
@@ -104,11 +116,17 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
     else if(targetIndex < _sendAddresses.Num())
     {
-        SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]);
+        bool error = false;
+        if(!SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]))
+        {
+            const auto target = _sendAddresses[targetIndex]->ToString(true);
+            UE_LOG(LogOSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
+            error = true;
+        }
 
 #if !NO_LOGGING
         // Log sent packet
-        if(!LogOSC.IsSuppressed(ELogVerbosity::Verbose))
+        if(!error && !LogOSC.IsSuppressed(ELogVerbosity::Verbose))
         {
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
