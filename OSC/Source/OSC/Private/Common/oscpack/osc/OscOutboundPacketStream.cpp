@@ -356,8 +356,12 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const BeginMessage& rhs 
     {
         messageCursor_ = BeginElement( messageCursor_ );
 
-        std::strcpy( messageCursor_, rhs.addressPattern );
-        std::size_t rhsLength = std::strlen(rhs.addressPattern);
+        std::size_t rhsLength = std::strlen( rhs.addressPattern );
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32)
+        strcpy_s( messageCursor_, rhsLength, rhs.addressPattern );
+#else
+        std::strncpy( messageCursor_, rhs.addressPattern, rhsLength );
+#endif
         messageCursor_ += rhsLength + 1;
 
         // zero pad to 4-byte boundary
@@ -634,8 +638,12 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const char *rhs )
     if(state_ == SUCCESS)
     {
         *(--typeTagsCurrent_) = STRING_TYPE_TAG;
-        std::strcpy( argumentCurrent_, rhs );
-        std::size_t rhsLength = std::strlen(rhs);
+        std::size_t rhsLength = std::strlen( rhs );
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32)
+        strcpy_s( argumentCurrent_, rhsLength, rhs );
+#else
+        std::strncpy( argumentCurrent_, rhs, rhsLength );
+#endif
         argumentCurrent_ += rhsLength + 1;
 
         // zero pad to 4-byte boundary
@@ -657,8 +665,12 @@ OutboundPacketStream& OutboundPacketStream::operator<<( const Symbol& rhs )
     if(state_ == SUCCESS)
     {
         *(--typeTagsCurrent_) = SYMBOL_TYPE_TAG;
-        std::strcpy( argumentCurrent_, rhs );
-        std::size_t rhsLength = std::strlen(rhs);
+        std::size_t rhsLength = std::strlen( rhs );
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32)
+        strcpy_s( argumentCurrent_, rhsLength, rhs );
+#else
+        std::strncpy( argumentCurrent_, rhs, rhsLength );
+#endif
         argumentCurrent_ += rhsLength + 1;
 
         // zero pad to 4-byte boundary
