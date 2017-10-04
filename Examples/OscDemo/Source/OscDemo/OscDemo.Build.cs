@@ -4,8 +4,8 @@ using UnrealBuildTool;
 
 public class OscDemo : ModuleRules
 {
-	public OscDemo(TargetInfo Target)
-	{
+	public OscDemo(ReadOnlyTargetRules Target) : base(Target)
+    {
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

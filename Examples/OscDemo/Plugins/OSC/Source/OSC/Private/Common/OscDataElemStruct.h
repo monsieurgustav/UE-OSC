@@ -8,24 +8,20 @@ struct FOscDataElemStruct
 {
     GENERATED_USTRUCT_BODY()
 
-    UPROPERTY()
-    int32 Type;
-
-    UPROPERTY()
-    int64 Data;
-
-    FOscDataElemStruct() : Type(0), Data(0)
-    { }
-
     enum
     {
-        FLOAT  = 0,
-        INT    = 1,
-        BOOL   = 2,
+        FLOAT = 0,
+        INT = 1,
+        BOOL = 2,
         STRING = 3,
+        BLOB = 4,
     };
-    
-    //-------------------------------------------------------------------------
+
+public:
+
+    FOscDataElemStruct() : Type(0), Data(0)
+    {
+    }
 
     void SetFloat(double value)
     {
@@ -112,6 +108,27 @@ struct FOscDataElemStruct
 
     //-------------------------------------------------------------------------
 
+    void SetBlob(TArray<uint8> value)
+    {
+        Data = 0;
+        Type = BLOB;
+        Blob = MakeShared<TArray<uint8>>(std::move(value));
+    }
+
+    const TArray<uint8> & AsBlobValue() const
+    {
+        check(IsBlob());
+        static const TArray<uint8> empty;
+        return Blob.IsValid() ? *Blob : empty;
+    }
+
+    bool IsBlob() const
+    {
+        return Type == BLOB;
+    }
+
+    //-------------------------------------------------------------------------
+
     /// Cast the value to T.
     template <class T>
     T GetValue() const
@@ -150,6 +167,14 @@ struct FOscDataElemStruct
                 return Cast<T, isString>::eval(value);
             }
         }
+        else if(IsBlob())
+        {
+            const bool isBlob = std::is_same<T, TArray<uint8>>::value;
+            if(isBlob)
+            {
+                return Cast<T, isBlob>::eval(AsBlobValue());
+            }
+        }
         return T();
     }
 
@@ -163,6 +188,13 @@ private:
             return T();
         }
     };
+
+private:
+    int32 Type;
+
+    int64 Data;
+
+    TSharedPtr<TArray<uint8>> Blob;
 };
 
 

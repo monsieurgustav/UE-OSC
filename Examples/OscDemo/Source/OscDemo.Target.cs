@@ -5,21 +5,9 @@ using System.Collections.Generic;
 
 public class OscDemoTarget : TargetRules
 {
-	public OscDemoTarget(TargetInfo Target)
+	public OscDemoTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-	}
-
-	//
-	// TargetRules interface.
-	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.AddRange( new string[] { "OscDemo" } );
+		ExtraModuleNames.AddRange( new string[] { "OscDemo" } );
 	}
 }

@@ -8,7 +8,7 @@
 class UOscDispatcher;
 
 
-UCLASS(config=Engine)
+UCLASS(Config=Engine, DefaultConfig)
 class UOscSettings : public UObject
 {
     GENERATED_BODY()
@@ -44,6 +44,9 @@ public:
     UPROPERTY(Config, EditAnywhere, Category=Input)
     TArray<FString> Inputs;
 
+    UPROPERTY(Config, EditAnywhere, Category=Network)
+    bool MulticastLoopback;
+
 public:
     void InitSendTargets();
 
@@ -70,5 +73,5 @@ private:
     TSharedRef<FSocket> _sendSocket;
     TArray<TSharedRef<FInternetAddr>> _sendAddresses;
     TMap<FString, int32> _sendAddressesIndex;
-    TArray<OscReceiverInputKey> _keyReceivers;
+    TArray<std::unique_ptr<OscReceiverInputKey>> _keyReceivers;
 };

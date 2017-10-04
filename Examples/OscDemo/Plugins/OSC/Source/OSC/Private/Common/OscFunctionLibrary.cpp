@@ -44,6 +44,11 @@ void UOscFunctionLibrary::PopString(const TArray<FOscDataElemStruct> & input, TA
     PopValueImpl(input, output, Value);
 }
 
+void UOscFunctionLibrary::PopBlob(const TArray<FOscDataElemStruct> & input, TArray<FOscDataElemStruct> & output, TArray<uint8> & Value)
+{
+    PopValueImpl(input, output, Value);
+}
+
 
 void UOscFunctionLibrary::PushBool(const TArray<FOscDataElemStruct> & input, bool Value, TArray<FOscDataElemStruct> & output)
 {
@@ -84,6 +89,14 @@ void UOscFunctionLibrary::PushString(const TArray<FOscDataElemStruct> & input, F
     output.Add(elem);
 }
 
+void UOscFunctionLibrary::PushBlob(const TArray<FOscDataElemStruct> & input, const TArray<uint8> & Value, TArray<FOscDataElemStruct> & output)
+{
+    output = input;
+    FOscDataElemStruct elem;
+    elem.SetBlob(Value);
+    output.Add(elem);
+}
+
 
 bool UOscFunctionLibrary::AsBool(const FOscDataElemStruct & input)
 {
@@ -103,6 +116,11 @@ int32 UOscFunctionLibrary::AsInt(const FOscDataElemStruct & input)
 FName UOscFunctionLibrary::AsString(const FOscDataElemStruct & input)
 {
     return input.GetValue<FName>();
+}
+
+TArray<uint8> UOscFunctionLibrary::AsBlob(const FOscDataElemStruct & input)
+{
+    return input.GetValue<TArray<uint8>>();
 }
 
 
@@ -131,6 +149,13 @@ FOscDataElemStruct UOscFunctionLibrary::FromString(FName input)
 {
     FOscDataElemStruct result;
     result.SetString(input);
+    return result;
+}
+
+FOscDataElemStruct UOscFunctionLibrary::FromBlob(const TArray<uint8> & input)
+{
+    FOscDataElemStruct result;
+    result.SetBlob(input);
     return result;
 }
 
@@ -187,6 +212,11 @@ namespace
             else if(elem.IsString())
             {
                 output << elem.AsStringValue().GetPlainANSIString();
+            }
+            else if(elem.IsBlob())
+            {
+                const TArray<uint8> & value = elem.AsBlobValue();
+                output << osc::Blob(value.GetData(), value.Num());
             }
 
             if(output.State() != osc::SUCCESS)

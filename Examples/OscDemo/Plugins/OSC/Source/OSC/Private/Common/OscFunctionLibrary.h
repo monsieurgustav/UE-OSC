@@ -28,6 +28,10 @@ public:
     UFUNCTION(BlueprintPure, Category=OSC)
     static void PopString(const TArray<FOscDataElemStruct> & input, TArray<FOscDataElemStruct> & output, FName & Value);
 
+    /// Get the next value from an OSC message as a blob.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static void PopBlob(const TArray<FOscDataElemStruct> & input, TArray<FOscDataElemStruct> & output, TArray<uint8> & Value);
+
 
     /// Add a boolean value to an OSC message.
     UFUNCTION(BlueprintPure, Category=OSC, meta=(AutoCreateRefTerm = "input"))
@@ -44,6 +48,10 @@ public:
     /// Add a string value to an OSC message.
     UFUNCTION(BlueprintPure, Category=OSC, meta=(AutoCreateRefTerm = "input"))
     static void PushString(const TArray<FOscDataElemStruct> & input, FName Value, TArray<FOscDataElemStruct> & output);
+
+    /// Add a blob to an OSC message.
+    UFUNCTION(BlueprintPure, Category=OSC, meta=(AutoCreateRefTerm = "input"))
+    static void PushBlob(const TArray<FOscDataElemStruct> & input, const TArray<uint8> & Value, TArray<FOscDataElemStruct> & output);
 
 
     /// Interpret an OSC argument as a boolean
@@ -62,6 +70,10 @@ public:
     UFUNCTION(BlueprintPure, Category=OSC)
     static FName AsString(const FOscDataElemStruct & input);
 
+    /// Interpret an OSC argument as a blob.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static TArray<uint8> AsBlob(const FOscDataElemStruct & input);
+
 
     /// Create an OSC argument from a boolean
     UFUNCTION(BlueprintPure, Category=OSC)
@@ -78,6 +90,10 @@ public:
     /// Create an OSC argument from a string.
     UFUNCTION(BlueprintPure, Category=OSC)
     static FOscDataElemStruct FromString(FName input);
+
+    /// Create an OSC argument from a blob.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static FOscDataElemStruct FromBlob(const TArray<uint8> & input);
 
 
     /**

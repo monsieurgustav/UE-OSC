@@ -25,7 +25,7 @@ UOscDispatcher * UOscDispatcher::Get()
     return UOscDispatcher::StaticClass()->GetDefaultObject<UOscDispatcher>();
 }
 
-void UOscDispatcher::Listen(FIPv4Address address, uint32_t port)
+void UOscDispatcher::Listen(FIPv4Address address, uint32_t port, bool multicastLoopback)
 {
     if(_listening != std::make_pair(address, port))
     {
@@ -36,6 +36,10 @@ void UOscDispatcher::Listen(FIPv4Address address, uint32_t port)
         if(address.IsMulticastAddress())
         {
             builder.JoinedToGroup(address);
+            if(multicastLoopback)
+            {
+                builder.WithMulticastLoopback();
+            }
         }
         else
         {
@@ -130,6 +134,25 @@ static void SendMessage(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStru
         else if(it->IsString())
         {
             elem.SetString(FName(it->AsStringUnchecked()));
+        }
+        else if(it->IsBlob())
+        {
+            const void* buffer;
+            osc::osc_bundle_element_size_t size;
+            osc::Errors error = osc::SUCCESS;
+            it->AsBlobUnchecked(buffer, size, error);
+
+            TArray<uint8> blob;
+            if(size && !error)
+            {
+                blob.SetNumUninitialized(size);
+                FMemory::Memcpy(blob.GetData(), buffer, size);
+            }
+            else if(error)
+            {
+                UE_LOG(LogOSC, Warning, TEXT("OSC Received Message Error: %s"), osc::errorString(error));
+            }
+            elem.SetBlob(std::move(blob));
         }
         data.Add(elem);
     }
