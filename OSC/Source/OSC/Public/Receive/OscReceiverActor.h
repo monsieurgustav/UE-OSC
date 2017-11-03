@@ -7,7 +7,7 @@
 
 
 UCLASS(ClassGroup=OSC)
-class AOscReceiverActor : public AActor
+class OSC_API AOscReceiverActor : public AActor
 {
     GENERATED_BODY()
 

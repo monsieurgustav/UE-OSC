@@ -6,7 +6,7 @@
 
 
 UCLASS()
-class UOscFunctionLibrary : public UBlueprintFunctionLibrary
+class OSC_API UOscFunctionLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

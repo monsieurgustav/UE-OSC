@@ -29,6 +29,15 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
+            PublicIncludePaths.AddRange(
+				new string[] {
+					"OSC/Public",
+					"OSC/Public/Common",
+					"OSC/Public/Receive",
+					"OSC/Public/Send",
+				}
+            );
+
 			PrivateIncludePaths.AddRange(
 				new string[] {
 					"OSC/Private",
