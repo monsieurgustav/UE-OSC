@@ -32,6 +32,11 @@ public:
     UPROPERTY(Config, EditAnywhere, Category=Receive)
     FString ReceiveFrom;
 
+    /**
+     *  Specify the addresses (ip:port) to send messages to.
+     *
+     *  Addresses can also be added at runtime with the AddSendOscTarget function.
+     */
     UPROPERTY(Config, EditAnywhere, Category=Send)
     TArray<FString> SendTargets;
 
@@ -58,13 +63,22 @@ public:
 
     void UpdateKeyInputs(UOscDispatcher & dispatcher);
 
+    void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
 public:
+
+    enum class ParseOption
+    {
+        Strict,  /// "192.168.0.12:8000"
+        OptionalPort,  ///  "192.168.0.12" or "192.168.0.12:8000"
+        OptionalAddress,  ///  "8000" or "192.168.0.12:8000"
+    };
 
     /**
      *  @brief Parse "8000" and "192.168.0.12" to IP and port values.
      *  @return true if succeed
      */
-    static bool Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port);
+    static bool Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port, ParseOption option);
 
 private:
     int32 AddSendTarget(const FString & ip_port);

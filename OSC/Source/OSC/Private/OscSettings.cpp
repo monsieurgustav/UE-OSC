@@ -54,7 +54,7 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
 
     FIPv4Address address(0);
     uint32_t port;
-    if(Parse(ip_port, &address, &port) && address != FIPv4Address::Any)
+    if(Parse(ip_port, &address, &port, ParseOption::Strict))
     {
         target->SetIp(address.Value);
         target->SetPort(port);
@@ -142,30 +142,54 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
 }
 
-bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port)
+bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port, ParseOption option)
 {
     if(ip_port.IsEmpty())
     {
         return false;
     }
 
-    FIPv4Address addressResult(0);
-    uint32_t portResult;
+    FIPv4Address addressResult = FIPv4Address::Any;
+    uint32_t portResult = 0;
 
     int32 sep = -1;
-    if(ip_port.FindChar(TEXT(':'), sep))
+    const bool hasSep = ip_port.FindChar(TEXT(':'), sep);
+
+    if(hasSep)
     {
+        portResult = FCString::Atoi(&ip_port.GetCharArray()[sep+1]);
+        if(portResult == 0)
+        {
+            return false;
+        }
+
         const auto ip = ip_port.Left(sep).Trim();
         if(!FIPv4Address::Parse(ip, addressResult))
         {
             return false;
         }
     }
-    
-    portResult = FCString::Atoi(&ip_port.GetCharArray()[sep+1]);
-    if(portResult == 0)
+    else
     {
-        return false;
+        if(option == ParseOption::Strict)
+        {
+            return false;
+        }
+        else if(option == ParseOption::OptionalAddress)
+        {
+            portResult = FCString::Atoi(ip_port.GetCharArray().GetData());
+            if(portResult == 0)
+            {
+                return false;
+            }
+        }
+        else if(option == ParseOption::OptionalPort)
+        {
+            if(!FIPv4Address::Parse(ip_port, addressResult))
+            {
+                return false;
+            }
+        }
     }
 
     *address = addressResult;
@@ -193,4 +217,28 @@ void UOscSettings::UpdateKeyInputs(UOscDispatcher & dispatcher)
         dispatcher.RegisterReceiver(receiver.get());
         _keyReceivers.Add(std::move(receiver));
     }
+}
+
+void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
+{
+    static const FName SendTargetsName("SendTargets");
+
+    if( PropertyChangedEvent.GetPropertyName() == SendTargetsName )
+    {
+        for(auto & target : SendTargets)
+        {
+            FIPv4Address address;
+            uint32_t port;
+            if( !Parse(target, &address, &port, ParseOption::OptionalPort) || address == FIPv4Address::Any )
+            {
+                target = "127.0.0.1:8000";
+            }
+            else if( port == 0 )
+            {
+                target = address.ToString() + ":8000";
+            }
+        }
+    }
+
+    Super::PostEditChangeProperty(PropertyChangedEvent);
 }

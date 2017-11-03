@@ -124,5 +124,5 @@ public:
      *  @see SendOsc
      */
     UFUNCTION(BlueprintCallable, Category=OSC)
-    static int32 AddSendOscTarget(FString IpPort);
+    static int32 AddSendOscTarget(FString IpPort = "127.0.0.1:8000");
 };
