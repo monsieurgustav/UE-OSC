@@ -219,6 +219,7 @@ void UOscSettings::UpdateKeyInputs(UOscDispatcher & dispatcher)
     }
 }
 
+#if WITH_EDITOR
 void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
     static const FName SendTargetsName("SendTargets");
@@ -242,3 +243,4 @@ void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChange
 
     Super::PostEditChangeProperty(PropertyChangedEvent);
 }
+#endif
