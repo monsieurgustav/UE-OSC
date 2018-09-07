@@ -163,7 +163,7 @@ bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32
             return false;
         }
 
-        const auto ip = ip_port.Left(sep).Trim();
+        const auto ip = ip_port.Left(sep).TrimStartAndEnd();
         if(!FIPv4Address::Parse(ip, addressResult))
         {
             return false;

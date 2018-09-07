@@ -62,9 +62,11 @@ public:
     void ClearKeyInputs(UOscDispatcher & dispatcher);
 
     void UpdateKeyInputs(UOscDispatcher & dispatcher);
+
 #if WITH_EDITOR
     void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
+
 public:
 
     enum class ParseOption

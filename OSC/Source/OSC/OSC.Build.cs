@@ -29,33 +29,23 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
-            PublicIncludePaths.AddRange(
-				new string[] {
-					"OSC/Public",
-					"OSC/Public/Common",
-					"OSC/Public/Receive",
-					"OSC/Public/Send",
-				}
-            );
-
 			PrivateIncludePaths.AddRange(
 				new string[] {
 					"OSC/Private",
 					"OSC/Private/Common",
 					"OSC/Private/Receive",
-					"OSC/Private/Send",
 				}
 			);
 
             if (Target.Type == TargetRules.TargetType.Editor)
             {
-                Definitions.Add("OSC_EDITOR_BUILD=1");
+                PublicDefinitions.Add("OSC_EDITOR_BUILD=1");
 
                 PrivateDependencyModuleNames.Add("UnrealEd");
             }
             else
             {
-                Definitions.Add("OSC_EDITOR_BUILD=0");
+                PublicDefinitions.Add("OSC_EDITOR_BUILD=0");
             }
         }
 	}
