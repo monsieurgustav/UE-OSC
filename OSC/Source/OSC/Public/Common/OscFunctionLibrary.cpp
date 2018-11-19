@@ -177,7 +177,9 @@ namespace
             return false;
         }
 
-        if(Address.GetPlainANSIString()[0] != '/')
+        ANSICHAR ansiString[NAME_SIZE];
+        Address.GetPlainANSIString(ansiString);
+        if(ansiString[0] != '/')
         {
             const auto tmp = Address.GetPlainNameString();
             UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
@@ -189,7 +191,9 @@ namespace
 
     void appendMessage(osc::OutboundPacketStream & output, FName Address, const TArray<FOscDataElemStruct> & Data)
     {
-        output << osc::BeginMessage(Address.GetPlainANSIString());
+        ANSICHAR ansiString[NAME_SIZE];
+        Address.GetPlainANSIString(ansiString);
+        output << osc::BeginMessage(ansiString);
         if(output.State() != osc::SUCCESS)
         {
             return;
@@ -211,7 +215,9 @@ namespace
             }
             else if(elem.IsString())
             {
-                output << elem.AsStringValue().GetPlainANSIString();
+                ANSICHAR ansiString[NAME_SIZE];
+                elem.AsStringValue().GetPlainANSIString(ansiString);
+                output << ansiString;
             }
             else if(elem.IsBlob())
             {
