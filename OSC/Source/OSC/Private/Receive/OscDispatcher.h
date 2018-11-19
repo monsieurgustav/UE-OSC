@@ -1,12 +1,20 @@
 #pragma once
 
 #include "OscDataElemStruct.h"
+
+#include "IPv4Address.h"
+#include "CircularQueue.h"
+#include "UdpSocketReceiver.h"
+
+#include <utility>
+#include <tuple>
+
 #include "OscDispatcher.generated.h"
 
 struct IOscReceiverInterface;
 class FSocket;
 class FUdpSocketReceiver;
-
+struct FIPv4Endpoint;
 
 /// Singleton that dispatches the OSC messages to listeners.
 UCLASS()

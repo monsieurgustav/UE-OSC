@@ -1,11 +1,15 @@
 #pragma once
 
-#include <utility>
 #include "OscReceiverInputKey.h"
+#include <utility>
+#include <memory>
 
 #include "OscSettings.generated.h"
 
 class UOscDispatcher;
+struct FIPv4Address;
+class FSocket;
+class FInternetAddr;
 
 
 UCLASS(Config=Engine, DefaultConfig)

@@ -1,6 +1,8 @@
 #include "OscPrivatePCH.h"
 #include "OscDispatcher.h"
 #include "OscReceiverInterface.h"
+#include "ArrayReader.h"
+#include "IPv4Endpoint.h"
 
 #include "oscpack/osc/OscReceivedElements.h"
 

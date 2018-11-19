@@ -4,7 +4,9 @@ namespace UnrealBuildTool.Rules
 	{
 		public OSC(ReadOnlyTargetRules Target) : base(Target)
         {
-			PublicDependencyModuleNames.AddRange(
+            PrivatePCHHeaderFile = "Private/OscPrivatePCH.h";
+
+            PublicDependencyModuleNames.AddRange(
 				new string[]
 				{
 					"Networking",

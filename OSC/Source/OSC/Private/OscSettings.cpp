@@ -3,6 +3,9 @@
 #include "OscSettings.h"
 #include "OscDispatcher.h"
 
+#include "IPv4Endpoint.h"
+#include "Sockets.h"
+
 
 UOscSettings::UOscSettings()
  :  ReceiveFrom("8000"),
