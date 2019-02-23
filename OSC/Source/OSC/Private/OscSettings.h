@@ -61,6 +61,8 @@ public:
 
     int32 GetOrAddSendTarget(const FString & ip_port);
 
+    bool RemoveSendOscTarget(int32 targetIndex);
+
     void Send(const uint8 *buffer, int32 length, int32 targetIndex);
 
     void ClearKeyInputs(UOscDispatcher & dispatcher);

@@ -74,6 +74,44 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
     return result;
 }
 
+bool UOscSettings::RemoveSendOscTarget(int32 targetIndex)
+{
+    if(_sendAddresses.Num() == 0)
+    {
+        return false;
+    }
+
+    if(targetIndex == -1)
+    {
+        _sendAddressesIndex.Empty();
+        _sendAddresses.Empty();
+        return true;
+    }
+    else if(targetIndex < _sendAddresses.Num())
+    {
+        _sendAddresses.RemoveAt( targetIndex );
+
+        for(auto &sendAddressIndex : _sendAddressesIndex)
+        {
+            if(sendAddressIndex.Value == targetIndex)
+            {
+                _sendAddressesIndex.Remove(sendAddressIndex.Key);
+            }
+            else if(sendAddressIndex.Value > targetIndex)
+            {
+                // As we have removed a value from the _sendAddresses array,
+                // we need to decrement all subsequent values to ensure that
+                // they still line up.
+                sendAddressIndex.Value -= 1;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 static bool SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
 {
     int32 bytesSent = 0;

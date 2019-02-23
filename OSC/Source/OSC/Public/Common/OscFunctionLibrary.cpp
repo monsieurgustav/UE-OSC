@@ -319,3 +319,8 @@ int32 UOscFunctionLibrary::AddSendOscTarget(FString IpPort)
 {
     return GetMutableDefault<UOscSettings>()->GetOrAddSendTarget(IpPort);
 }
+
+bool UOscFunctionLibrary::RemoveSendOscTarget(int32 TargetIndex)
+{
+    return GetMutableDefault<UOscSettings>()->RemoveSendOscTarget(TargetIndex);
+}

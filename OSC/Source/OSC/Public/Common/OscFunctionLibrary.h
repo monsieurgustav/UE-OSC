@@ -125,4 +125,17 @@ public:
      */
     UFUNCTION(BlueprintCallable, Category=OSC)
     static int32 AddSendOscTarget(FString IpPort = "127.0.0.1:8000");
+
+    /**
+     *  @brief Remove the specified target from the available OSC send targets.
+     *  @param TargetIndex index of the target to remove, -1 for all targets.
+     *  @return Whether any targets were removed.
+     *
+     *  Use this function to remove targets at runtime. Generally, it is best
+     *  to define your targets in the OSC plugin settings.
+     *
+     *  @see SendOsc
+     */
+    UFUNCTION(BlueprintCallable, Category=OSC)
+    static bool RemoveSendOscTarget(int32 TargetIndex);
 };
