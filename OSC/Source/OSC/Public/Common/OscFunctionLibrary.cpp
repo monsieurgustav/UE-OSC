@@ -215,7 +215,6 @@ namespace
             }
             else if(elem.IsString())
             {
-                ANSICHAR ansiString[NAME_SIZE];
                 elem.AsStringValue().GetPlainANSIString(ansiString);
                 output << ansiString;
             }
