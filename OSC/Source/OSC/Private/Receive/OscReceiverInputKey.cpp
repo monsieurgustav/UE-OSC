@@ -10,7 +10,7 @@ OscReceiverInputKey::OscReceiverInputKey(const FString &address)
     _addressName(*address)
 {
     char buffer[512];  // address truncated after 500 chars.
-    const auto length = sprintf(buffer, "OSC%.500s", StringCast<ANSICHAR>(*address).Get());
+    const auto length = sprintf_s(buffer, sizeof(buffer), "OSC%.500s", StringCast<ANSICHAR>(*address).Get());
 
     // replace '/' by '_' because '/' is not a valid FKey character.
     for(int i=0; i!=length; ++i)
