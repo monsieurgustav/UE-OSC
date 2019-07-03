@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Object.h"
 #include "OscDataElemStruct.h"
 
 #include "IPv4Address.h"
