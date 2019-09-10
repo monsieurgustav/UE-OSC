@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "OscDataElemStruct.h"
 #include "OscMessageStruct.h"
 #include "OscFunctionLibrary.generated.h"
