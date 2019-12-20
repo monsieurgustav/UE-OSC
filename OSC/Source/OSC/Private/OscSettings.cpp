@@ -9,14 +9,14 @@
 
 UOscSettings::UOscSettings()
  :  ReceiveFrom("8000"),
-    MulticastLoopback(true),
-    _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
+    MulticastLoopback(true)
 {
+    FIPv4Endpoint::Initialize();
+    _sendSocket = MakeShareable(FUdpSocketBuilder(TEXT("OscSender")).Build());
     SendTargets.Add(TEXT("127.0.0.1:8000"));
 }
 
 UOscSettings::UOscSettings(FVTableHelper & helper)
- :  _sendSocket(FUdpSocketBuilder(TEXT("OscSender")).Build())
 {
     // Does not need to be a valid object.
 }
@@ -98,7 +98,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         bool error = false;
         for(const auto & address : _sendAddresses)
         {
-            if(!SendImpl(&_sendSocket.Get(), buffer, length, *address))
+            if(!SendImpl(_sendSocket.Get(), buffer, length, *address))
             {
                 const auto target = address->ToString(true);
                 UE_LOG(LogOSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
@@ -120,7 +120,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     else if(targetIndex < _sendAddresses.Num())
     {
         bool error = false;
-        if(!SendImpl(&_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]))
+        if(!SendImpl(_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]))
         {
             const auto target = _sendAddresses[targetIndex]->ToString(true);
             UE_LOG(LogOSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);

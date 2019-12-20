@@ -91,7 +91,7 @@ private:
     int32 AddSendTarget(const FString & ip_port);
 
 private:
-    TSharedRef<FSocket> _sendSocket;
+    TSharedPtr<FSocket> _sendSocket;
     TArray<TSharedRef<FInternetAddr>> _sendAddresses;
     TMap<FString, int32> _sendAddressesIndex;
     TArray<std::unique_ptr<OscReceiverInputKey>> _keyReceivers;
