@@ -15,8 +15,7 @@
 		{
 			"Name" : "OSC",
 			"Type" : "Runtime",
-			"LoadingPhase" : "PreDefault",
-			"BlacklistPlatforms" : [ "HTML5" ]
+			"LoadingPhase" : "PreDefault"
 		}
 	],
 
