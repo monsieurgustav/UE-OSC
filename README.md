@@ -3,6 +3,8 @@ UE4-OSC
 
 OSC plugin for Unreal Engine 4 to send and receive OSC messages with blueprints!
 
+*Updated to work with 4.24*
+
 It uses oscpack, a C++ library for packing/unpacking OSC messages, by Ross Bencina. http://www.rossbencina.com/code/oscpack
 
 
