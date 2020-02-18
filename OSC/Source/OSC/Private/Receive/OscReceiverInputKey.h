@@ -2,8 +2,8 @@
 
 #include "InputCoreTypes.h"
 
-#include "OscReceiverInterface.h"
-#include "OscDataElemStruct.h"
+#include "Receive/OscReceiverInterface.h"
+#include "Common/OscDataElemStruct.h"
 
 
 class OscReceiverInputKey : public IOscReceiverInterface
