@@ -6,10 +6,10 @@
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
-#include "TaskGraphInterfaces.h"
+#include "Async/TaskGraphInterfaces.h"
 
 #include "Runtime/Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/Networking/Public/Networking.h"

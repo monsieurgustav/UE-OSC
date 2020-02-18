@@ -1,8 +1,8 @@
 #include "OscPrivatePCH.h"
 #include "OscDispatcher.h"
-#include "OscReceiverInterface.h"
-#include "ArrayReader.h"
-#include "IPv4Endpoint.h"
+#include "Receive/OscReceiverInterface.h"
+#include "Serialization/ArrayReader.h"
+#include "Interfaces/IPv4/IPv4Address.h"
 
 #include "oscpack/osc/OscReceivedElements.h"
 

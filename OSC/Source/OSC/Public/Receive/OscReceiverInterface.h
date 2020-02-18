@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OscDataElemStruct.h"
+#include "Common/OscDataElemStruct.h"
 
 
 /// Base class to receive OSC messages.
