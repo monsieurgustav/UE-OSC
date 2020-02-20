@@ -4,6 +4,7 @@ namespace UnrealBuildTool.Rules
 	{
 		public OSC(ReadOnlyTargetRules Target) : base(Target)
         {
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
             PrivatePCHHeaderFile = "Private/OscPrivatePCH.h";
 
             PublicDependencyModuleNames.AddRange(

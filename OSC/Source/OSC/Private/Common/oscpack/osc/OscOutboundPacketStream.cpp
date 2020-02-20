@@ -35,8 +35,6 @@
     above license is reproduced.
 */
 
-#include "OscPrivatePCH.h"
-
 #include "OscOutboundPacketStream.h"
 
 #if defined(__WIN32__) || defined(WIN32) || defined(_WIN32)

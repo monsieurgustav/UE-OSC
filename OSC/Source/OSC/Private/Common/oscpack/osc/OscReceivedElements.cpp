@@ -35,8 +35,6 @@
     above license is reproduced.
 */
 
-#include "OscPrivatePCH.h"
-
 #include "OscReceivedElements.h"
 
 #include "OscHostEndianness.h"
