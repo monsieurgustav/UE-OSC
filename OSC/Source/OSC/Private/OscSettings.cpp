@@ -3,7 +3,7 @@
 #include "OscSettings.h"
 #include "OscDispatcher.h"
 
-#include "IPv4Endpoint.h"
+#include "Interfaces/IPv4/IPv4Address.h"
 #include "Sockets.h"
 
 

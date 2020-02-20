@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include "UObject/Object.h"
 #include "OscReceiverInputKey.h"
 #include <utility>
 #include <memory>
