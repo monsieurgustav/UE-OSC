@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace UnrealBuildTool.Rules
 {
 	public class OSC : ModuleRules
@@ -40,7 +43,13 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
-            if (Target.Type == TargetRules.TargetType.Editor)
+			PublicIncludePaths.AddRange(
+				new string[] {
+					Path.Combine(ModuleDirectory, "Public"),
+				}
+			);
+
+			if (Target.Type == TargetRules.TargetType.Editor)
             {
                 PublicDefinitions.Add("OSC_EDITOR_BUILD=1");
 
