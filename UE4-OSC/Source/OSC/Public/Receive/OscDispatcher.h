@@ -25,7 +25,7 @@ class OSC_API UOscDispatcher : public UObject
 
     friend class FOscModule;
 
-    void Listen(FIPv4Address address, uint32_t port, bool multicastLoopback);
+    void Listen(FIPv4Address address, uint32_t port, FIPv4Address multicastAddress, bool multicastLoopback);
     void Stop();
 
 public:

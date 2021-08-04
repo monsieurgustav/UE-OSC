@@ -26,7 +26,7 @@ UOscDispatcher * UOscDispatcher::Get()
     return UOscDispatcher::StaticClass()->GetDefaultObject<UOscDispatcher>();
 }
 
-void UOscDispatcher::Listen(FIPv4Address address, uint32_t port, bool multicastLoopback)
+void UOscDispatcher::Listen(FIPv4Address address, uint32_t port, FIPv4Address multicastAddress, bool multicastLoopback)
 {
     if(_listening != std::make_pair(address, port))
     {
@@ -34,9 +34,9 @@ void UOscDispatcher::Listen(FIPv4Address address, uint32_t port, bool multicastL
 
         FUdpSocketBuilder builder(TEXT("OscListener"));
         builder.BoundToPort(port);
-        if(address.IsMulticastAddress())
+        if(multicastAddress.IsMulticastAddress())
         {
-            builder.JoinedToGroup(address);
+            builder.JoinedToGroup(multicastAddress, address);
             if(multicastLoopback)
             {
                 builder.WithMulticastLoopback();

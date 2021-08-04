@@ -55,9 +55,11 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
 
     FIPv4Address address(0);
     uint32_t port;
-    if(Parse(ip_port, &address, &port, ParseOption::Strict))
+    FIPv4Address multicastAddress(0);
+    if(Parse(ip_port, &address, &port, &multicastAddress, ParseOption::Strict))
     {
-        target->SetIp(address.Value);
+        const FIPv4Address& targetAddress = multicastAddress.IsMulticastAddress() ? multicastAddress : address;
+        target->SetIp(targetAddress.Value);
         target->SetPort(port);
         UE_LOG(LogOSC, Display, TEXT("Send target added: %s"), *ip_port);
     }
@@ -143,7 +145,49 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     }
 }
 
-bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port, ParseOption option)
+namespace
+{
+    bool ParseIpAndMulticast(const FString& addressStr, FIPv4Address* address, FIPv4Address* multicastAddress)
+    {
+        FIPv4Address addressResult = FIPv4Address::Any;
+        FIPv4Address multicastAddressResult = FIPv4Address::Any;
+
+        int32 multicastSep = -1;
+        const bool hasMulticastSep = addressStr.FindChar(TEXT('/'), multicastSep);
+        if (hasMulticastSep)
+        {
+            const auto multicastIp = addressStr.Left(multicastSep).TrimStartAndEnd();
+            const auto interfaceIp = addressStr.RightChop(multicastSep+1).TrimStartAndEnd();
+            if (!FIPv4Address::Parse(multicastIp, multicastAddressResult))
+            {
+                return false;
+            }
+            if (!FIPv4Address::Parse(interfaceIp, addressResult))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!FIPv4Address::Parse(addressStr, addressResult))
+            {
+                return false;
+            }
+
+            if (addressResult.IsMulticastAddress())
+            {
+                using std::swap;
+                swap(addressResult, multicastAddressResult);
+            }
+        }
+
+        *address = addressResult;
+        *multicastAddress = multicastAddressResult;
+        return true;
+    }
+}
+
+bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32_t * port, FIPv4Address* multicastAddress, ParseOption option)
 {
     if(ip_port.IsEmpty())
     {
@@ -152,20 +196,21 @@ bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32
 
     FIPv4Address addressResult = FIPv4Address::Any;
     uint32_t portResult = 0;
+    FIPv4Address multicastAddressResult = FIPv4Address::Any;
 
-    int32 sep = -1;
-    const bool hasSep = ip_port.FindChar(TEXT(':'), sep);
+    int32 portSep = -1;
+    const bool hasPortSep = ip_port.FindChar(TEXT(':'), portSep);
 
-    if(hasSep)
+    if(hasPortSep)
     {
-        portResult = FCString::Atoi(&ip_port.GetCharArray()[sep+1]);
+        portResult = FCString::Atoi(&ip_port.GetCharArray()[portSep+1]);
         if(portResult == 0)
         {
             return false;
         }
 
-        const auto ip = ip_port.Left(sep).TrimStartAndEnd();
-        if(!FIPv4Address::Parse(ip, addressResult))
+        const auto ip = ip_port.Left(portSep).TrimStartAndEnd();
+        if(!ParseIpAndMulticast(ip, &addressResult, &multicastAddressResult))
         {
             return false;
         }
@@ -186,7 +231,7 @@ bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32
         }
         else if(option == ParseOption::OptionalPort)
         {
-            if(!FIPv4Address::Parse(ip_port, addressResult))
+            if (!ParseIpAndMulticast(ip_port, &addressResult, &multicastAddressResult))
             {
                 return false;
             }
@@ -195,6 +240,7 @@ bool UOscSettings::Parse(const FString & ip_port, FIPv4Address * address, uint32
 
     *address = addressResult;
     *port = portResult;
+    *multicastAddress = multicastAddressResult;
     return true;
 }
 
@@ -231,13 +277,17 @@ void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChange
         {
             FIPv4Address address;
             uint32_t port;
-            if( !Parse(target, &address, &port, ParseOption::OptionalPort) || address == FIPv4Address::Any )
+            FIPv4Address multicastAddress;
+            if( !Parse(target, &address, &port, &multicastAddress, ParseOption::OptionalPort) || address == FIPv4Address::Any )
             {
                 target = "127.0.0.1:8000";
+                continue;
             }
-            else if( port == 0 )
+
+            const FIPv4Address& targetAddress = multicastAddress.IsMulticastAddress() ? multicastAddress : address;
+            if( port == 0 )
             {
-                target = address.ToString() + ":8000";
+                target = targetAddress.ToString() + ":8000";
             }
         }
     }

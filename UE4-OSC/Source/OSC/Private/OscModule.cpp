@@ -102,9 +102,10 @@ public:
     {
         FIPv4Address receiveAddress(0);
         uint32_t receivePort;
-        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort, UOscSettings::ParseOption::OptionalAddress))
+        FIPv4Address receiveMulticastAddress(0);
+        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort, &receiveMulticastAddress, UOscSettings::ParseOption::OptionalAddress))
         {
-            _dispatcher->Listen(receiveAddress, receivePort, settings->MulticastLoopback);
+            _dispatcher->Listen(receiveAddress, receivePort, receiveMulticastAddress, settings->MulticastLoopback);
         }
         else
         {
