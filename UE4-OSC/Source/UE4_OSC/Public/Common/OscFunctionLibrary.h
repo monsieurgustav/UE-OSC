@@ -8,7 +8,7 @@
 
 
 UCLASS()
-class OSC_API UOscFunctionLibrary : public UBlueprintFunctionLibrary
+class UE4_OSC_API UOscFunctionLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 

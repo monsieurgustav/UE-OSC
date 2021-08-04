@@ -3,9 +3,9 @@ using System.IO;
 
 namespace UnrealBuildTool.Rules
 {
-	public class OSC : ModuleRules
+	public class UE4_OSC : ModuleRules
 	{
-		public OSC(ReadOnlyTargetRules Target) : base(Target)
+		public UE4_OSC(ReadOnlyTargetRules Target) : base(Target)
         {
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
             PrivatePCHHeaderFile = "Private/OscPrivatePCH.h";

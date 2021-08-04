@@ -26,11 +26,11 @@ void UOscReceiverComponent::BeginPlay()
 
         if(GetOwner())
         {
-            UE_LOG(LogOSC, Verbose, TEXT("Registering component %s of %s"),  *GetName(), *GetOwner()->GetName());
+            UE_LOG(LogUE4_OSC, Verbose, TEXT("Registering component %s of %s"),  *GetName(), *GetOwner()->GetName());
         }
         else
         {
-            UE_LOG(LogOSC, Verbose, TEXT("Registering component %s"), *GetName());
+            UE_LOG(LogUE4_OSC, Verbose, TEXT("Registering component %s"), *GetName());
         }
     }
 }
@@ -46,11 +46,11 @@ void UOscReceiverComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
         if(GetOwner())
         {
-            UE_LOG(LogOSC, Verbose, TEXT("Unregistering component %s of %s"),  *GetName(), *GetOwner()->GetName());
+            UE_LOG(LogUE4_OSC, Verbose, TEXT("Unregistering component %s of %s"),  *GetName(), *GetOwner()->GetName());
         }
         else
         {
-            UE_LOG(LogOSC, Verbose, TEXT("Unregistering component %s"), *GetName());
+            UE_LOG(LogUE4_OSC, Verbose, TEXT("Unregistering component %s"), *GetName());
         }
     }
 

@@ -5,7 +5,7 @@
 
 
 USTRUCT(BlueprintType)
-struct OSC_API FOscMessageStruct
+struct UE4_OSC_API FOscMessageStruct
 {
     GENERATED_USTRUCT_BODY()
 

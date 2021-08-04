@@ -78,7 +78,7 @@ void UOscFunctionLibrary::PushString(const TArray<FOscDataElemStruct> & input, F
     if(Value.GetDisplayNameEntry()->IsWide())
     {
         const auto tmp = Value.GetPlainNameString();
-        UE_LOG(LogOSC, Error, TEXT("Invalid string argument \"%s\": ASCII only"), *tmp);
+        UE_LOG(LogUE4_OSC, Error, TEXT("Invalid string argument \"%s\": ASCII only"), *tmp);
         return;
     }
 
@@ -165,14 +165,14 @@ namespace
     {
         if(!Address.IsValid())
         {
-            UE_LOG(LogOSC, Error, TEXT("Empty OSC address"));
+            UE_LOG(LogUE4_OSC, Error, TEXT("Empty OSC address"));
             return false;
         }
 
         if(Address.GetDisplayNameEntry()->IsWide())
         {
             const auto tmp = Address.GetPlainNameString();
-            UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
+            UE_LOG(LogUE4_OSC, Error, TEXT("Invalid OSC address \"%s\": ASCII only"), *tmp);
             return false;
         }
 
@@ -181,7 +181,7 @@ namespace
         if(ansiString[0] != '/')
         {
             const auto tmp = Address.GetPlainNameString();
-            UE_LOG(LogOSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
+            UE_LOG(LogUE4_OSC, Error, TEXT("Invalid OSC address \"%s\": must start with '/'"), *tmp);
             return false;
         }
 
@@ -261,7 +261,7 @@ void UOscFunctionLibrary::SendOsc(FName Address, const TArray<FOscDataElemStruct
     }
     else
     {
-        UE_LOG(LogOSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
+        UE_LOG(LogUE4_OSC, Error, TEXT("OSC Send Message Error: %s"), osc::errorString(output.State()));
     }
 }
 
@@ -290,7 +290,7 @@ void UOscFunctionLibrary::SendOscBundle(const TArray<FOscMessageStruct> & Messag
         }
         if(output.State() != osc::SUCCESS)
         {
-            UE_LOG(LogOSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
+            UE_LOG(LogUE4_OSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
             return;
         }
     }
@@ -309,7 +309,7 @@ void UOscFunctionLibrary::SendOscBundle(const TArray<FOscMessageStruct> & Messag
     }
     else
     {
-        UE_LOG(LogOSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
+        UE_LOG(LogUE4_OSC, Error, TEXT("OSC Send Bundle Error: %s"), osc::errorString(output.State()));
     }
 }
 

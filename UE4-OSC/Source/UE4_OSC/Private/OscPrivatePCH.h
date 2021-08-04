@@ -19,4 +19,4 @@
 #include <memory>
 #include <tuple>
 
-DECLARE_LOG_CATEGORY_EXTERN(LogOSC, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogUE4_OSC, Log, All);

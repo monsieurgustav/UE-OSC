@@ -16,7 +16,7 @@ public:
     {
         if(!FModuleManager::Get().LoadModule(TEXT("Networking")))
         {
-            UE_LOG(LogOSC, Error, TEXT("Required module Networking failed to load"));
+            UE_LOG(LogUE4_OSC, Error, TEXT("Required module Networking failed to load"));
             return;
         }
 
@@ -48,15 +48,15 @@ public:
         else
         {
 #if OSC_EDITOR_BUILD
-            UE_LOG(LogOSC, Warning, TEXT("Settings changed registration failed"));
+            UE_LOG(LogUE4_OSC, Warning, TEXT("Settings changed registration failed"));
 #endif
         }
-        UE_LOG(LogOSC, Display, TEXT("Startup succeed"));
+        UE_LOG(LogUE4_OSC, Display, TEXT("Startup succeed"));
     }
 
     virtual void ShutdownModule( ) override
     {
-        UE_LOG(LogOSC, Display, TEXT("Shutdown"));
+        UE_LOG(LogUE4_OSC, Display, TEXT("Shutdown"));
 
         if(_dispatcher.IsValid())
         {
@@ -71,11 +71,11 @@ public:
     {
         if(!_dispatcher.IsValid())
         {
-            UE_LOG(LogOSC, Warning, TEXT("Cannot update settings"));
+            UE_LOG(LogUE4_OSC, Warning, TEXT("Cannot update settings"));
             return false;
         }
         
-        UE_LOG(LogOSC, Display, TEXT("Update settings"));
+        UE_LOG(LogUE4_OSC, Display, TEXT("Update settings"));
 
         auto settings = GetMutableDefault<UOscSettings>();
 
@@ -109,7 +109,7 @@ public:
         }
         else
         {
-            UE_LOG(LogOSC, Error, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
+            UE_LOG(LogUE4_OSC, Error, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
         }
     }
 
@@ -139,8 +139,8 @@ private:
 };
 
 
-IMPLEMENT_MODULE(FOscModule, OSC);
-DEFINE_LOG_CATEGORY(LogOSC);
+IMPLEMENT_MODULE(FOscModule, UE4_OSC);
+DEFINE_LOG_CATEGORY(LogUE4_OSC);
 
 
 #undef LOCTEXT_NAMESPACE
