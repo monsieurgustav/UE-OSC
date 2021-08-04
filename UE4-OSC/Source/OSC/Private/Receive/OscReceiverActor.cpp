@@ -5,6 +5,17 @@
 AOscReceiverActor::AOscReceiverActor()
     : _listener(this)
 {
+}
+
+AOscReceiverActor::AOscReceiverActor(FVTableHelper& helper)
+    : _listener(this)
+{
+}
+
+void AOscReceiverActor::BeginPlay()
+{
+    Super::BeginPlay();
+
     auto instance = UOscDispatcher::Get();
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
     {
@@ -14,13 +25,7 @@ AOscReceiverActor::AOscReceiverActor()
     }
 }
 
-AOscReceiverActor::AOscReceiverActor(FVTableHelper & helper)
-    : _listener(this)
-{
-    // Does not need to be a valid object.
-}
-
-void AOscReceiverActor::BeginDestroy()
+void AOscReceiverActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     auto instance = UOscDispatcher::Get();
     if (instance && !HasAnyFlags(RF_ClassDefaultObject))
@@ -30,5 +35,5 @@ void AOscReceiverActor::BeginDestroy()
         UE_LOG(LogOSC, Verbose, TEXT("Unregistering actor %s"), *GetName());
     }
 
-    Super::BeginDestroy();
+    Super::EndPlay(EndPlayReason);
 }

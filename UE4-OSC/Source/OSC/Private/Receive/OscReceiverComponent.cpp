@@ -11,12 +11,11 @@ UOscReceiverComponent::UOscReceiverComponent()
 UOscReceiverComponent::UOscReceiverComponent(FVTableHelper & helper)
     : _listener(this)
 {
-    // Does not need to be a valid object.
 }
 
-void UOscReceiverComponent::OnRegister()
+void UOscReceiverComponent::BeginPlay()
 {
-    Super::OnRegister();
+    Super::BeginPlay();
 
     auto instance = UOscDispatcher::Get();
     if (instance &&
@@ -36,7 +35,7 @@ void UOscReceiverComponent::OnRegister()
     }
 }
 
-void UOscReceiverComponent::OnUnregister()
+void UOscReceiverComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     auto instance = UOscDispatcher::Get();
     if (instance &&
@@ -55,5 +54,5 @@ void UOscReceiverComponent::OnUnregister()
         }
     }
 
-    Super::OnUnregister();
+    Super::EndPlay(EndPlayReason);
 }

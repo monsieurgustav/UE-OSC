@@ -37,8 +37,10 @@ public:
     }
 
 private:
-    void BeginDestroy() override;
-    
+    void BeginPlay() override;
+
+    void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 private:
     BasicOscReceiver<AOscReceiverActor> _listener;
 };

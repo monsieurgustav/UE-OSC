@@ -41,9 +41,9 @@ public:
     }
 
 private:
-    void OnRegister() override;
+    void BeginPlay() override;
 
-    void OnUnregister() override;
+    void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
     BasicOscReceiver<UOscReceiverComponent> _listener;
