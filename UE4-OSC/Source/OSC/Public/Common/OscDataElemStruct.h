@@ -26,6 +26,33 @@ public:
     {
     }
 
+    FOscDataElemStruct(double value)
+    {
+        SetFloat(value);
+    }
+
+    FOscDataElemStruct(int64 value)
+    {
+        SetInt(value);
+    }
+
+    FOscDataElemStruct(bool value)
+    {
+        SetBool(value);
+    }
+
+    FOscDataElemStruct(FName value)
+    {
+        SetString(value);
+    }
+
+    FOscDataElemStruct(TArray<uint8> value)
+    {
+        SetBlob(std::move(value));
+    }
+
+    //-------------------------------------------------------------------------
+
     void SetFloat(double value)
     {
         static_assert(sizeof(value) <= sizeof(Data), "Too short to hold the float value.");
