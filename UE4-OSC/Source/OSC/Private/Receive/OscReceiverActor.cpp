@@ -1,5 +1,5 @@
-#include "OscReceiverActor.h"
-#include "OscDispatcher.h"
+#include "Receive/OscReceiverActor.h"
+#include "Receive/OscDispatcher.h"
 
 
 AOscReceiverActor::AOscReceiverActor()

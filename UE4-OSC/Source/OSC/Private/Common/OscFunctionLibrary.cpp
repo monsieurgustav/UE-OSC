@@ -1,4 +1,4 @@
-#include "OscFunctionLibrary.h"
+#include "Common/OscFunctionLibrary.h"
 #include "OscSettings.h"
 #include "oscpack/osc/OscOutboundPacketStream.h"
 

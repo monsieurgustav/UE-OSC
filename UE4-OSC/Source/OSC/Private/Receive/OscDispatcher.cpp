@@ -1,9 +1,9 @@
-#include "OscDispatcher.h"
+#include "Receive/OscDispatcher.h"
 #include "Receive/OscReceiverInterface.h"
 #include "Serialization/ArrayReader.h"
 #include "Interfaces/IPv4/IPv4Address.h"
 
-#include "oscpack/osc/OscReceivedElements.h"
+#include "Common/oscpack/osc/OscReceivedElements.h"
 
 
 UOscDispatcher::UOscDispatcher()

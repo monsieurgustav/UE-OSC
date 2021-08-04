@@ -19,7 +19,7 @@ struct FIPv4Endpoint;
 
 /// Singleton that dispatches the OSC messages to listeners.
 UCLASS()
-class UOscDispatcher : public UObject
+class OSC_API UOscDispatcher : public UObject
 {
     GENERATED_BODY()
 

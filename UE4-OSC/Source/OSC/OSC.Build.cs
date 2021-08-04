@@ -35,20 +35,6 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"OSC/Private",
-					"OSC/Private/Common",
-					"OSC/Private/Receive",
-				}
-			);
-
-			PublicIncludePaths.AddRange(
-				new string[] {
-					Path.Combine(ModuleDirectory, "Public"),
-				}
-			);
-
 			if (Target.Type == TargetRules.TargetType.Editor)
             {
                 PublicDefinitions.Add("OSC_EDITOR_BUILD=1");

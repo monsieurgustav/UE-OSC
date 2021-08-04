@@ -1,7 +1,7 @@
 #pragma once
 
 #include "UObject/Object.h"
-#include "OscReceiverInputKey.h"
+#include "Receive/OscReceiverInputKey.h"
 #include <utility>
 #include <memory>
 

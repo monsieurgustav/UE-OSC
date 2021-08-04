@@ -1,5 +1,5 @@
 #include "OscSettings.h"
-#include "OscDispatcher.h"
+#include "Receive/OscDispatcher.h"
 
 #if OSC_EDITOR_BUILD
 #include "Editor.h"

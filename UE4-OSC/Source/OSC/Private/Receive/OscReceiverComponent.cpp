@@ -1,5 +1,5 @@
-#include "OscReceiverComponent.h"
-#include "OscDispatcher.h"
+#include "Receive/OscReceiverComponent.h"
+#include "Receive/OscDispatcher.h"
 
 
 UOscReceiverComponent::UOscReceiverComponent()
