@@ -162,9 +162,43 @@ namespace
             {
                 return false;
             }
-            if (!FIPv4Address::Parse(interfaceIp, addressResult))
+
+            if (interfaceIp.EndsWith(".255"))
             {
-                return false;
+                // look up actual network interface using a mask
+                FIPv4SubnetMask mask;
+                if (FIPv4SubnetMask::Parse(interfaceIp, mask))
+                {
+                    TArray<TSharedPtr<FInternetAddr>> localAdapterAddresses;
+                    if (ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalAdapterAddresses(localAdapterAddresses))
+                    {
+                        for (const auto& localAdapterAddress : localAdapterAddresses)
+                        {
+                            uint32 localAdapterIp = 0;
+                            localAdapterAddress->GetIp(localAdapterIp);
+
+                            const FIPv4Address localAdapterIpv4(localAdapterIp);
+                            if ((localAdapterIpv4 & mask) == localAdapterIpv4)
+                            {
+                                addressResult = localAdapterIpv4;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (addressResult == FIPv4Address::Any)
+                {
+                    UE_LOG(LogUE4_OSC, Error, TEXT("Cannot parse multicast address: no network interface matches the provided mask %s."), *interfaceIp);
+                    return false;
+                }
+            }
+            else
+            {
+                if (!FIPv4Address::Parse(interfaceIp, addressResult))
+                {
+                    return false;
+                }
             }
         }
         else

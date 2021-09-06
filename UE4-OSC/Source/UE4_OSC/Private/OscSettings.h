@@ -33,6 +33,7 @@ public:
      *  - "8000" listen to messages from any sender on port 8000.  [default]
      *  - "224.0.0.100:8000" listen multi-cast messages of group 224.0.0.100 on port 8000.
      *  - "224.0.0.100/192.168.0.1:8000" listen multi-cast messages of group 224.0.0.100 on the 192.168.0.1 specific interface on port 8000.
+     *  - "224.0.0.100/192.168.0.255:8000" listen multi-cast messages of group 224.0.0.100 on any network interface matching the mask 192.168.0.255 on port 8000.
      *  - "192.168.0.1:8000" listen messages addressed specifically to 192.168.0.1 on port 8000, useful if there are several addresses for this machine.
      * 
      * General purpose remark: multicast happens on one of the machine actual network interface.
