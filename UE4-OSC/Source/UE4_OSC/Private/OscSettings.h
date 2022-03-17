@@ -98,7 +98,8 @@ private:
 
 private:
     TSharedPtr<FSocket> _sendSocket;
-    TArray<TSharedRef<FInternetAddr>> _sendAddresses;
+    FUdpSocketSender* _socketSender;
+    TArray<FIPv4Endpoint> _sendAddresses;
     TMap<FString, int32> _sendAddressesIndex;
     TArray<std::unique_ptr<OscReceiverInputKey>> _keyReceivers;
 };

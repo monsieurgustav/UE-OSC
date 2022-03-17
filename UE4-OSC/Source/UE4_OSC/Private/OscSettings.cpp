@@ -11,6 +11,7 @@ UOscSettings::UOscSettings()
 {
     FIPv4Endpoint::Initialize();
     _sendSocket = MakeShareable(FUdpSocketBuilder(TEXT("OscSender")).Build());
+    _socketSender = new FUdpSocketSender(_sendSocket.Get(), TEXT("OSCSender"));
     SendTargets.Add(TEXT("127.0.0.1:8000"));
 }
 
@@ -51,16 +52,15 @@ int32 UOscSettings::GetOrAddSendTarget(const FString & ip_port)
 
 int32 UOscSettings::AddSendTarget(const FString & ip_port)
 {
-    auto target = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-
+    FIPv4Endpoint target;
     FIPv4Address address(0);
     uint32_t port;
     FIPv4Address multicastAddress(0);
     if(Parse(ip_port, &address, &port, &multicastAddress, ParseOption::Strict))
     {
         const FIPv4Address& targetAddress = multicastAddress.IsMulticastAddress() ? multicastAddress : address;
-        target->SetIp(targetAddress.Value);
-        target->SetPort(port);
+        target.Address = targetAddress.Value;
+        target.Port = port;
         UE_LOG(LogUE4_OSC, Display, TEXT("Send target added: %s"), *ip_port);
     }
     else
@@ -74,33 +74,18 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
     return result;
 }
 
-static bool SendImpl(FSocket *socket, const uint8 *buffer, int32 length, const FInternetAddr & target)
-{
-    int32 bytesSent = 0;
-    while(length > 0)
-    {
-        socket->SendTo(buffer, length, bytesSent, target);
-        if( bytesSent < 0 )
-        {
-            return false;
-        }
-        length -= bytesSent;
-        buffer += bytesSent;
-    }
-
-    return true;
-}
-
 void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
 {
-    if(targetIndex == -1)
+    auto data = MakeShared<TArray<uint8>, ESPMode::ThreadSafe>(buffer, length);
+
+    if (targetIndex == -1)
     {
         bool error = false;
-        for(const auto & address : _sendAddresses)
+        for(const auto& address : _sendAddresses)
         {
-            if(!SendImpl(_sendSocket.Get(), buffer, length, *address))
+            if(!_socketSender->Send(data, address))
             {
-                const auto target = address->ToString(true);
+                const auto target = address.ToString();
                 UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
                 error = true;
             }
@@ -120,9 +105,9 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     else if(targetIndex < _sendAddresses.Num())
     {
         bool error = false;
-        if(!SendImpl(_sendSocket.Get(), buffer, length, *_sendAddresses[targetIndex]))
+        if(!_socketSender->Send(data, _sendAddresses[targetIndex]))
         {
-            const auto target = _sendAddresses[targetIndex]->ToString(true);
+            const auto target = _sendAddresses[targetIndex].ToString();
             UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
             error = true;
         }
@@ -134,7 +119,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
             const auto encoded = FBase64::Encode(tmp);
-            const auto target  = _sendAddresses[targetIndex]->ToString(true);
+            const auto target = _sendAddresses[targetIndex].ToString();
             UE_LOG(LogUE4_OSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
 #endif
