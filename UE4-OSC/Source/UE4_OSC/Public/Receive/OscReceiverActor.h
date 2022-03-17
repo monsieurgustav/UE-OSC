@@ -13,7 +13,10 @@ class UE4_OSC_API AOscReceiverActor : public AActor
 
 public:
 
-    UPROPERTY(EditAnywhere, Category=OSC)
+    /**
+     *  Receive a message only if its address starts with the filter.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=OSC)
     FString AddressFilter;
 
     UFUNCTION(BlueprintImplementableEvent, Category=OSC)

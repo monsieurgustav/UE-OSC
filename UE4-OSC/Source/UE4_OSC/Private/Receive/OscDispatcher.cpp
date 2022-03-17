@@ -228,6 +228,7 @@ void UOscDispatcher::CallbackMainThread()
 
     FScopeLock ScopeLock(&_receiversMutex);
 
+    FString addressStr;
     std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address> message;
     while(_pendingMessages.Dequeue(message))
     {
@@ -235,7 +236,17 @@ void UOscDispatcher::CallbackMainThread()
         FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.A, senderIp.B, senderIp.C, senderIp.D);
         for(auto receiver : _receivers)
         {
-            receiver->SendEvent(std::get<0>(message), std::get<1>(message), senderIpStr);
+            const auto& address = std::get<0>(message);
+            const auto& addressFilter = receiver->GetAddressFilter();
+            if(!addressFilter.IsEmpty())
+            {
+                address.ToString(addressStr);
+                if(!addressStr.StartsWith(addressFilter, ESearchCase::IgnoreCase))  // address is case insensitive
+                {
+                    continue;
+                }
+            }
+            receiver->SendEvent(address, std::get<1>(message), senderIpStr);
         }
     }
 }
