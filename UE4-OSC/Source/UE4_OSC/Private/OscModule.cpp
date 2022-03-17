@@ -100,16 +100,19 @@ public:
 
     void Listen(UOscSettings * settings)
     {
-        FIPv4Address receiveAddress(0);
-        uint32_t receivePort;
-        FIPv4Address receiveMulticastAddress(0);
-        if(UOscSettings::Parse(settings->ReceiveFrom, &receiveAddress, &receivePort, &receiveMulticastAddress, UOscSettings::ParseOption::OptionalAddress))
+        for (const auto& receiveFrom : settings->ReceiveFrom)
         {
-            _dispatcher->Listen(receiveAddress, receivePort, receiveMulticastAddress, settings->MulticastLoopback);
-        }
-        else
-        {
-            UE_LOG(LogUE4_OSC, Error, TEXT("Fail to parse receive address: %s"), *settings->ReceiveFrom);
+            FIPv4Address receiveAddress(0);
+            uint32_t receivePort;
+            FIPv4Address receiveMulticastAddress(0);
+            if(UOscSettings::Parse(receiveFrom, &receiveAddress, &receivePort, &receiveMulticastAddress, UOscSettings::ParseOption::OptionalAddress))
+            {
+                _dispatcher->Listen(receiveAddress, receivePort, receiveMulticastAddress, settings->MulticastLoopback);
+            }
+            else
+            {
+                UE_LOG(LogUE4_OSC, Error, TEXT("Fail to parse receive address: %s"), *receiveFrom);
+            }
         }
     }
 

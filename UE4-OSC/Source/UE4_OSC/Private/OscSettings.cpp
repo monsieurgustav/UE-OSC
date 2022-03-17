@@ -6,12 +6,12 @@
 
 
 UOscSettings::UOscSettings()
- :  ReceiveFrom("8000"),
-    MulticastLoopback(true)
+ :  MulticastLoopback(true)
 {
     FIPv4Endpoint::Initialize();
     _sendSocket = MakeShareable(FUdpSocketBuilder(TEXT("OscSender")).Build());
     _socketSender = new FUdpSocketSender(_sendSocket.Get(), TEXT("OSCSender"));
+    ReceiveFrom.Add(TEXT("8000"));
     SendTargets.Add(TEXT("127.0.0.1:8000"));
 }
 
@@ -288,7 +288,23 @@ void UOscSettings::UpdateKeyInputs(UOscDispatcher & dispatcher)
 #if WITH_EDITOR
 void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
+    static const FName ReceiveFromName("ReceiveFrom");
     static const FName SendTargetsName("SendTargets");
+
+    if( PropertyChangedEvent.GetPropertyName() == ReceiveFromName )
+    {
+        for(auto & target : ReceiveFrom)
+        {
+            FIPv4Address address;
+            uint32_t port;
+            FIPv4Address multicastAddress;
+            if( !Parse(target, &address, &port, &multicastAddress, ParseOption::OptionalAddress) )
+            {
+                target = "8000";
+                continue;
+            }
+        }
+    }
 
     if( PropertyChangedEvent.GetPropertyName() == SendTargetsName )
     {

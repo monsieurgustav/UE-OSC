@@ -41,7 +41,7 @@ public:
      * On complex network setup, one might need to specify the interface or the packets may come to a dead end.
      */
     UPROPERTY(Config, EditAnywhere, Category=Receive)
-    FString ReceiveFrom;
+    TArray<FString> ReceiveFrom;
 
     /**
      *  Specify the addresses (ip:port) to send messages to.

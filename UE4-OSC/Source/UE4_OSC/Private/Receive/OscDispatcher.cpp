@@ -7,16 +7,11 @@
 
 
 UOscDispatcher::UOscDispatcher()
-: _listening(FIPv4Address(0), 0),
-  _socket(nullptr),
-  _socketReceiver(nullptr),
-  _pendingMessages(1024),  // arbitrary max message count per frame
-  _taskSpawned(0)
+: _taskSpawned(0)
 {
 }
 
 UOscDispatcher::UOscDispatcher(FVTableHelper & helper)
-: _pendingMessages(0)
 {
     // Does not need to be a valid object.
 }
@@ -28,39 +23,34 @@ UOscDispatcher * UOscDispatcher::Get()
 
 void UOscDispatcher::Listen(FIPv4Address address, uint32_t port, FIPv4Address multicastAddress, bool multicastLoopback)
 {
-    if(_listening != std::make_pair(address, port))
+    FUdpSocketBuilder builder(TEXT("OscListener"));
+    builder.BoundToPort(port);
+    if(multicastAddress.IsMulticastAddress())
     {
-        Stop();
-
-        FUdpSocketBuilder builder(TEXT("OscListener"));
-        builder.BoundToPort(port);
-        if(multicastAddress.IsMulticastAddress())
+        builder.JoinedToGroup(multicastAddress, address);
+        if(multicastLoopback)
         {
-            builder.JoinedToGroup(multicastAddress, address);
-            if(multicastLoopback)
-            {
-                builder.WithMulticastLoopback();
-            }
+            builder.WithMulticastLoopback();
         }
-        else
-        {
-            builder.BoundToAddress(address);
-        }
+    }
+    else
+    {
+        builder.BoundToAddress(address);
+    }
         
-        _socket = builder.Build();
-        if(_socket)
-        {
-            _socketReceiver = new FUdpSocketReceiver(_socket, FTimespan::FromMilliseconds(100), TEXT("OSCListener"));
-            _socketReceiver->OnDataReceived().BindUObject(this, &UOscDispatcher::Callback);
-            _socketReceiver->Start();
+    auto socket = builder.Build();
+    if(socket)
+    {
+        auto receiver = new FUdpSocketReceiver(socket, FTimespan::FromMilliseconds(100), TEXT("OSCListener"));
+        receiver->OnDataReceived().BindUObject(this, &UOscDispatcher::Callback);
+        receiver->Start();
+        _socketReceivers.Add({ socket, receiver });
 
-            _listening = std::make_pair(address, port);
-            UE_LOG(LogUE4_OSC, Display, TEXT("Listen to port %d"), port);
-        }
-        else
-        {
-            UE_LOG(LogUE4_OSC, Warning, TEXT("Cannot listen port %d"), port);
-        }
+        UE_LOG(LogUE4_OSC, Display, TEXT("Listen to port %d"), port);
+    }
+    else
+    {
+        UE_LOG(LogUE4_OSC, Warning, TEXT("Cannot listen port %d"), port);
     }
 }
 
@@ -68,16 +58,12 @@ void UOscDispatcher::Stop()
 {
     UE_LOG(LogUE4_OSC, Display, TEXT("Stop listening"));
 
-    delete _socketReceiver;
-    _socketReceiver = nullptr;
-
-    if(_socket)
+    for (auto& socketReceiver : _socketReceivers)
     {
-        ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(_socket);
-        _socket = nullptr;
+        delete socketReceiver.Receiver;
+        ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(socketReceiver.Socket);
     }
-
-    _listening = std::make_pair(FIPv4Address(0), 0);
+    _socketReceivers.Reset();
 }
 
 void UOscDispatcher::RegisterReceiver(IOscReceiverInterface * receiver)
@@ -92,7 +78,7 @@ void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
     _receivers.Remove(receiver);
 }
 
-static void SendMessage(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>> & _pendingMessages,
+static void SendMessage(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>, EQueueMode::Mpsc> & _pendingMessages,
                         const osc::ReceivedMessage & message,
                         const FIPv4Address & senderIp)
 {
@@ -168,7 +154,7 @@ static void SendMessage(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStru
     }
 }
 
-static void SendBundle(TCircularQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>> & _pendingMessages,
+static void SendBundle(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>, EQueueMode::Mpsc> & _pendingMessages,
                        const osc::ReceivedBundle & bundle,
                        const FIPv4Address & senderIp)
 {

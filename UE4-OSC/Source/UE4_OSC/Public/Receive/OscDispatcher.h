@@ -55,10 +55,13 @@ private:
     
 private:
     TArray<IOscReceiverInterface *> _receivers;
-    std::pair<FIPv4Address, uint32_t> _listening;
-    FSocket * _socket;
-    FUdpSocketReceiver * _socketReceiver;
-    TCircularQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>> _pendingMessages;
+    struct SocketReceiver
+    {
+        FSocket * Socket;
+        FUdpSocketReceiver * Receiver;
+    };
+    TArray<SocketReceiver> _socketReceivers;
+    TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>, EQueueMode::Mpsc> _pendingMessages;  // supports multiple-producers
     int32 _taskSpawned;
 
     /// Protects _receivers
