@@ -313,7 +313,7 @@ void UOscSettings::PostEditChangeProperty(FPropertyChangedEvent & PropertyChange
             FIPv4Address address;
             uint32_t port;
             FIPv4Address multicastAddress;
-            if( !Parse(target, &address, &port, &multicastAddress, ParseOption::OptionalPort) || address == FIPv4Address::Any )
+            if( !Parse(target, &address, &port, &multicastAddress, ParseOption::OptionalPort) || (address == FIPv4Address::Any && !multicastAddress.IsMulticastAddress()) )
             {
                 target = "127.0.0.1:8000";
                 continue;
