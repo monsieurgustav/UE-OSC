@@ -96,10 +96,19 @@ public:
 private:
     int32 AddSendTarget(const FString & ip_port);
 
+    FUdpSocketSender* GetOrAddMulticastInterfaceSender(const FIPv4Address& multicastInterface);
+
 private:
-    TSharedPtr<FSocket> _sendSocket;
-    FUdpSocketSender* _socketSender;
-    TArray<FIPv4Endpoint> _sendAddresses;
+    TSharedPtr<FSocket> _defaultSendSocket;
+    TSharedPtr<FUdpSocketSender> _defaultSocketSender;
+    TArray<TPair<FIPv4Endpoint, FUdpSocketSender*>> _sendAddressAndSenders;
     TMap<FString, int32> _sendAddressesIndex;
+    struct MulticastInterfaceSender
+    {
+        FIPv4Address Interface;
+        TSharedPtr<FSocket> Socket;
+        TSharedPtr<FUdpSocketSender> Sender;
+    };
+    TArray<MulticastInterfaceSender> _multicastInterfaceSenders;
     TArray<std::unique_ptr<OscReceiverInputKey>> _keyReceivers;
 };

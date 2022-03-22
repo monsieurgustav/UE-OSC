@@ -9,8 +9,8 @@ UOscSettings::UOscSettings()
  :  MulticastLoopback(true)
 {
     FIPv4Endpoint::Initialize();
-    _sendSocket = MakeShareable(FUdpSocketBuilder(TEXT("OscSender")).Build());
-    _socketSender = new FUdpSocketSender(_sendSocket.Get(), TEXT("OSCSender"));
+    _defaultSendSocket = MakeShareable(FUdpSocketBuilder(TEXT("OscSender")).Build());
+    _defaultSocketSender = MakeShared<FUdpSocketSender>(_defaultSendSocket.Get(), TEXT("OSCSender"));
     ReceiveFrom.Add(TEXT("8000"));
     SendTargets.Add(TEXT("127.0.0.1:8000"));
 }
@@ -24,13 +24,13 @@ void UOscSettings::InitSendTargets()
 {
     UE_LOG(LogUE4_OSC, Display, TEXT("Send targets cleared"));
 
-    FString addressStr, portStr;
-
-    _sendAddresses.Empty();
-    _sendAddresses.Reserve(SendTargets.Num());
+    _sendAddressAndSenders.Empty();
+    _sendAddressAndSenders.Reserve(SendTargets.Num());
 
     _sendAddressesIndex.Empty();
     _sendAddressesIndex.Reserve(SendTargets.Num());
+
+    _multicastInterfaceSenders.Empty();
 
     for(int32 i=0, n=SendTargets.Num(); i!=n; ++i)
     {
@@ -53,13 +53,21 @@ int32 UOscSettings::GetOrAddSendTarget(const FString & ip_port)
 int32 UOscSettings::AddSendTarget(const FString & ip_port)
 {
     FIPv4Endpoint target;
+    FUdpSocketSender* sender = _defaultSocketSender.Get();
     FIPv4Address address(0);
     uint32_t port;
     FIPv4Address multicastAddress(0);
     if(Parse(ip_port, &address, &port, &multicastAddress, ParseOption::Strict))
     {
-        const FIPv4Address& targetAddress = multicastAddress.IsMulticastAddress() ? multicastAddress : address;
-        target.Address = targetAddress.Value;
+        if(multicastAddress.IsMulticastAddress())
+        {
+            target.Address = multicastAddress;
+            sender = GetOrAddMulticastInterfaceSender(address);
+        }
+        else
+        {
+            target.Address = address;
+        }
         target.Port = port;
         UE_LOG(LogUE4_OSC, Display, TEXT("Send target added: %s"), *ip_port);
     }
@@ -68,10 +76,34 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
         UE_LOG(LogUE4_OSC, Error, TEXT("Fail to parse or invalid send target: %s"), *ip_port);
     }
 
-    const auto result = _sendAddresses.Num();
+    const auto result = _sendAddressAndSenders.Num();
     _sendAddressesIndex.Emplace(ip_port, result);
-    _sendAddresses.Emplace(target);
+    _sendAddressAndSenders.Emplace(target, sender);
     return result;
+}
+
+FUdpSocketSender* UOscSettings::GetOrAddMulticastInterfaceSender(const FIPv4Address& multicastInterface)
+{
+    if(multicastInterface == FIPv4Address::Any)
+    {
+        return _defaultSocketSender.Get();
+    }
+    else
+    {
+        for(const auto & item : _multicastInterfaceSenders)
+        {
+            if(item.Interface == multicastInterface)
+            {
+                return item.Sender.Get();
+            }
+        }
+
+        // add
+        TSharedPtr<FSocket> socket = MakeShareable(FUdpSocketBuilder(TEXT("OscSenderMulticast")).WithMulticastInterface(multicastInterface).Build());
+        TSharedPtr<FUdpSocketSender> sender = MakeShared<FUdpSocketSender>(socket.Get(), TEXT("OSCSenderMulticast"));
+        _multicastInterfaceSenders.Add({ multicastInterface, socket, sender });
+        return sender.Get();
+    }
 }
 
 void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
@@ -81,11 +113,11 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
     if (targetIndex == -1)
     {
         bool error = false;
-        for(const auto& address : _sendAddresses)
+        for(const auto& item : _sendAddressAndSenders)
         {
-            if(!_socketSender->Send(data, address))
+            if(!item.Value->Send(data, item.Key))
             {
-                const auto target = address.ToString();
+                const auto target = item.Key.ToString();
                 UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
                 error = true;
             }
@@ -102,12 +134,13 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         }
 #endif
     }
-    else if(targetIndex < _sendAddresses.Num())
+    else if(targetIndex < _sendAddressAndSenders.Num())
     {
         bool error = false;
-        if(!_socketSender->Send(data, _sendAddresses[targetIndex]))
+        const auto& item = _sendAddressAndSenders[targetIndex];
+        if(!item.Value->Send(data, item.Key))
         {
-            const auto target = _sendAddresses[targetIndex].ToString();
+            const auto target = item.Key.ToString();
             UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
             error = true;
         }
@@ -119,7 +152,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
             const auto encoded = FBase64::Encode(tmp);
-            const auto target = _sendAddresses[targetIndex].ToString();
+            const auto target = item.Key.ToString();
             UE_LOG(LogUE4_OSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
 #endif
