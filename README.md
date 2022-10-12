@@ -1,7 +1,7 @@
-UE4-OSC
+UE-OSC
 =======
 
-OSC plugin for Unreal Engine 4 to send and receive OSC messages with blueprints!
+OSC plugin for Unreal Engine 4 and Unreal Engine 5 to send and receive OSC messages with blueprints!
 
 It uses oscpack, a C++ library for packing/unpacking OSC messages, by Ross Bencina. http://www.rossbencina.com/code/oscpack
 
@@ -15,14 +15,14 @@ Watch it to properly install the plugin and get some brilliant ideas on how to u
 https://www.youtube.com/watch?v=GGGs-n-CKtY
 
 
-Also, go to the UE4 forum dedicated thread:
+Also, go to the UE forum dedicated thread:
 
 https://forums.unrealengine.com/showthread.php?49627-Plugin-OSC-for-UE4
 
 
 # Integration
 
-Install Visual Studio 2015 on Windows (Community edition works) or XCode on MaxOSX.
+Install Visual Studio 2019 on Windows (Community edition works) or XCode on MaxOSX.
 
 Create a "C++" project, or convert a "Blueprint" project to "C++".
 
@@ -69,16 +69,16 @@ or to the result of the "Add Send Osc Target" function.
 
 ### Inputs (experimental)
 
-List the messages that should be UE4 inputs (like a game controller). A new input is created for each message.
+List the messages that should be UE inputs (like a game controller). A new input is created for each message.
 
-Bind OSC inputs to UE4 action in the usual "Input" project settings.
+Bind OSC inputs to UE action in the usual "Input" project settings.
 
 
 # General information
 
 ### Troubleshooting
 
-The plugin uses the standard UE4 logging system.
+The plugin uses the standard UE logging system.
 
 Check your logs (Window/Developers Tools/Output Log) before asking for help!
 

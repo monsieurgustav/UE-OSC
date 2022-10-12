@@ -1,7 +1,6 @@
 {
 	"FileVersion" : 3,
-	
-	"FriendlyName" : "UE4-OSC ",
+	"FriendlyName" : "UE-OSC ",
 	"Version" : 1,
 	"VersionName" : "1.0",
 	"CreatedBy" : "Guillaume Buisson",
@@ -9,15 +8,13 @@
 	"Description" : "",
 	"Category" : "OSC",
 	"EnabledByDefault" : true,
-
 	"Modules" :
 	[
 		{
-			"Name" : "UE4_OSC",
+			"Name" : "UE_OSC",
 			"Type" : "Runtime",
 			"LoadingPhase" : "PreDefault"
 		}
 	],
-
 	"CanContainContent" : false
 }

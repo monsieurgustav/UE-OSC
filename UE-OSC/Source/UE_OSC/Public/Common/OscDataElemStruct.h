@@ -7,7 +7,7 @@
 
 
 USTRUCT(BlueprintType)
-struct UE4_OSC_API FOscDataElemStruct
+struct UE_OSC_API FOscDataElemStruct
 {
     GENERATED_USTRUCT_BODY()
 

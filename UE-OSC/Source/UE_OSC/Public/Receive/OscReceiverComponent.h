@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FComponentOscReceivedSignature, c
 
 
 UCLASS(ClassGroup=OSC, meta = (BlueprintSpawnableComponent))
-class UE4_OSC_API UOscReceiverComponent : public UActorComponent
+class UE_OSC_API UOscReceiverComponent : public UActorComponent
 {
     GENERATED_BODY()
 

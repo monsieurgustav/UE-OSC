@@ -3,9 +3,9 @@ using System.IO;
 
 namespace UnrealBuildTool.Rules
 {
-	public class UE4_OSC : ModuleRules
+	public class UE_OSC : ModuleRules
 	{
-		public UE4_OSC(ReadOnlyTargetRules Target) : base(Target)
+		public UE_OSC(ReadOnlyTargetRules Target) : base(Target)
         {
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
             PrivatePCHHeaderFile = "Private/OscPrivatePCH.h";
@@ -15,7 +15,7 @@ namespace UnrealBuildTool.Rules
 				{
 					"Networking",
 				}
-			); 
+			);
 
 			PrivateDependencyModuleNames.AddRange(
 				new string[] {

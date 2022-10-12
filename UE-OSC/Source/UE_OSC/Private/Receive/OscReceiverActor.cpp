@@ -21,7 +21,7 @@ void AOscReceiverActor::BeginPlay()
     {
         instance->RegisterReceiver(&_listener);
 
-        UE_LOG(LogUE4_OSC, Verbose, TEXT("Registering actor %s"), *GetName());
+        UE_LOG(LogUE_OSC, Verbose, TEXT("Registering actor %s"), *GetName());
     }
 }
 
@@ -32,7 +32,7 @@ void AOscReceiverActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
     {
         instance->UnregisterReceiver(&_listener);
 
-        UE_LOG(LogUE4_OSC, Verbose, TEXT("Unregistering actor %s"), *GetName());
+        UE_LOG(LogUE_OSC, Verbose, TEXT("Unregistering actor %s"), *GetName());
     }
 
     Super::EndPlay(EndPlayReason);

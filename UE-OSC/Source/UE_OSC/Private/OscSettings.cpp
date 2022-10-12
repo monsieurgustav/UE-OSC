@@ -22,7 +22,7 @@ UOscSettings::UOscSettings(FVTableHelper & helper)
 
 void UOscSettings::InitSendTargets()
 {
-    UE_LOG(LogUE4_OSC, Display, TEXT("Send targets cleared"));
+    UE_LOG(LogUE_OSC, Display, TEXT("Send targets cleared"));
 
     _sendAddressAndSenders.Empty();
     _sendAddressAndSenders.Reserve(SendTargets.Num());
@@ -69,11 +69,11 @@ int32 UOscSettings::AddSendTarget(const FString & ip_port)
             target.Address = address;
         }
         target.Port = port;
-        UE_LOG(LogUE4_OSC, Display, TEXT("Send target added: %s"), *ip_port);
+        UE_LOG(LogUE_OSC, Display, TEXT("Send target added: %s"), *ip_port);
     }
     else
     {
-        UE_LOG(LogUE4_OSC, Error, TEXT("Fail to parse or invalid send target: %s"), *ip_port);
+        UE_LOG(LogUE_OSC, Error, TEXT("Fail to parse or invalid send target: %s"), *ip_port);
     }
 
     const auto result = _sendAddressAndSenders.Num();
@@ -118,19 +118,19 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
             if(!item.Value->Send(data, item.Key))
             {
                 const auto target = item.Key.ToString();
-                UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
+                UE_LOG(LogUE_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
                 error = true;
             }
         }
 
 #if !NO_LOGGING
         // Log sent packet
-        if(!error && !LogUE4_OSC.IsSuppressed(ELogVerbosity::Verbose))
+        if(!error && !LogUE_OSC.IsSuppressed(ELogVerbosity::Verbose))
         {
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
             const auto encoded = FBase64::Encode(tmp);
-            UE_LOG(LogUE4_OSC, Verbose, TEXT("SentAll: %s"), *encoded);
+            UE_LOG(LogUE_OSC, Verbose, TEXT("SentAll: %s"), *encoded);
         }
 #endif
     }
@@ -141,25 +141,25 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         if(!item.Value->Send(data, item.Key))
         {
             const auto target = item.Key.ToString();
-            UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
+            UE_LOG(LogUE_OSC, Error, TEXT("Cannot send OSC: %s : socket cannot send data"), *target);
             error = true;
         }
 
 #if !NO_LOGGING
         // Log sent packet
-        if(!error && !LogUE4_OSC.IsSuppressed(ELogVerbosity::Verbose))
+        if(!error && !LogUE_OSC.IsSuppressed(ELogVerbosity::Verbose))
         {
             TArray<uint8> tmp;
             tmp.Append(buffer, length);
             const auto encoded = FBase64::Encode(tmp);
             const auto target = item.Key.ToString();
-            UE_LOG(LogUE4_OSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
+            UE_LOG(LogUE_OSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
 #endif
     }
     else
     {
-        UE_LOG(LogUE4_OSC, Error, TEXT("Cannot send OSC: invalid targetIndex %d"), targetIndex);
+        UE_LOG(LogUE_OSC, Error, TEXT("Cannot send OSC: invalid targetIndex %d"), targetIndex);
     }
 }
 
@@ -207,7 +207,7 @@ namespace
 
                 if (addressResult == FIPv4Address::Any)
                 {
-                    UE_LOG(LogUE4_OSC, Error, TEXT("Cannot parse multicast address: no network interface matches the provided mask %s."), *interfaceIp);
+                    UE_LOG(LogUE_OSC, Error, TEXT("Cannot parse multicast address: no network interface matches the provided mask %s."), *interfaceIp);
                     return false;
                 }
             }

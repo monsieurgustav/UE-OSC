@@ -5,13 +5,13 @@
 
 
 USTRUCT(BlueprintType)
-struct UE4_OSC_API FOscMessageStruct
+struct UE_OSC_API FOscMessageStruct
 {
     GENERATED_USTRUCT_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=OSC)
     FName Address;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=OSC)
     TArray<FOscDataElemStruct> Data;
 };
