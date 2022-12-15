@@ -127,9 +127,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         // Log sent packet
         if(!error && !LogUE_OSC.IsSuppressed(ELogVerbosity::Verbose))
         {
-            TArray<uint8> tmp;
-            tmp.Append(buffer, length);
-            const auto encoded = FBase64::Encode(tmp);
+            const auto encoded = FBase64::Encode(buffer, length);
             UE_LOG(LogUE_OSC, Verbose, TEXT("SentAll: %s"), *encoded);
         }
 #endif
@@ -149,9 +147,7 @@ void UOscSettings::Send(const uint8 *buffer, int32 length, int32 targetIndex)
         // Log sent packet
         if(!error && !LogUE_OSC.IsSuppressed(ELogVerbosity::Verbose))
         {
-            TArray<uint8> tmp;
-            tmp.Append(buffer, length);
-            const auto encoded = FBase64::Encode(tmp);
+            const auto encoded = FBase64::Encode(buffer, length);
             const auto target = item.Key.ToString();
             UE_LOG(LogUE_OSC, Verbose, TEXT("SentTo %s: %s"), *target, *encoded);
         }
