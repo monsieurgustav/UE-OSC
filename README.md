@@ -4,6 +4,7 @@ UE-OSC
 OSC plugin for Unreal Engine 4 and Unreal Engine 5 to send and receive OSC messages with blueprints!
 
 It uses oscpack, a C++ library for packing/unpacking OSC messages, by Ross Bencina. http://www.rossbencina.com/code/oscpack
+It also uses OscPkt, a very minimalistic OSC library, by Julien Pommier. http://gruntthepeon.free.fr/oscpkt/
 
 
 # Migrating from UE4-OSC to UE-OSC
@@ -60,6 +61,35 @@ The OnOscReceived event gives: the OSC address, the OSC parameters and the IP of
 The OSC parameters is an array of OSC elements. To read the content, either:
  - chain PopFloat/Int/Bool/String/Blob functions to get the first value, or
  - use the standard GET function and AsFloat/Int/Bool/String/Blob functions to cast the element to its value. This is slightly more efficient.
+
+#### AddressFilter
+
+OscReceiverComponent has an AddressFilter parameter. If not empty,
+OnOscReceived is called if and only if the address pattern of the incoming message 
+matches the AddressFilter.
+
+Standard OSC pattern matching is supported against AddressFilter.
+
+Pattern matching is case insensitive.
+
+When using AddressFilter, the address given in the OnOscReceived event is *not* the address of the incoming
+message, but what is left after the address filter.
+
+e.g.
+ - AddressFilter=/Foo + OSC message address pattern=/Foo
+   => OnOscReceived event with Address=None
+ - AddressFilter=/Foo + OSC message address pattern=/Foo/Bar
+   => OnOscReceived event with Address=/Bar
+ - AddressFilter=/Foo + OSC message address pattern=/*/Bar
+   => OnOscReceived event with Address=/Bar
+
+#### Alternative pattern matching
+
+If AddressFilter does not work for you, the function MatchOscAddressPattern() provides a similar feature
+you can use in C++ or Blueprint.
+
+Pattern matching is case insensitive.
+
 
 ### Sender
 

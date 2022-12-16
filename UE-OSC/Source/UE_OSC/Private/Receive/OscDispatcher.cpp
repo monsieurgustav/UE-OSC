@@ -3,7 +3,9 @@
 #include "Serialization/ArrayReader.h"
 #include "Interfaces/IPv4/IPv4Address.h"
 
+#include "Common/OscUtils.h"
 #include "Common/oscpack/osc/OscReceivedElements.h"
+#include "oscpkt.hh"  // only for pattern matching (oscpack is preferred because it makes no memory allocation)
 
 
 UOscDispatcher::UOscDispatcher()
@@ -88,6 +90,11 @@ static void SendMessage(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIP
         return;
     }
     const FName address(message.AddressPattern());
+    if(address.GetDisplayNameEntry()->IsWide())
+    {
+        UE_LOG(LogUE_OSC, Warning, TEXT("OSC Received Message Error: address contains non ASCII characters"));
+        return;
+    }
 
     TArray<FOscDataElemStruct> data;
     
@@ -229,21 +236,39 @@ void UOscDispatcher::CallbackMainThread()
     FScopeLock ScopeLock(&_receiversMutex);
 
     FString addressStr;
+    ANSICHAR addressPatternANSI[NAME_SIZE];
+    ANSICHAR addressFilterANSI[NAME_SIZE];
     std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address> message;
     while(_pendingMessages.Dequeue(message))
     {
         const FIPv4Address & senderIp = std::get<2>(message);
-        FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.A, senderIp.B, senderIp.C, senderIp.D);
+        const FString senderIpStr = FString::Printf(TEXT("%i.%i.%i.%i"), senderIp.A, senderIp.B, senderIp.C, senderIp.D);
+
+        FName address = std::get<0>(message);
+        address.GetPlainANSIString(addressPatternANSI);  // it is check as ANSI string when the messae is received
+        Osc::NameToLower(addressPatternANSI);
+
         for(auto receiver : _receivers)
         {
-            const auto& address = std::get<0>(message);
-            const auto& addressFilter = receiver->GetAddressFilter();
-            if(!addressFilter.IsEmpty())
+            const FName addressFilter = receiver->GetAddressFilter();
+            if (!addressFilter.IsNone())
             {
-                address.ToString(addressStr);
-                if(!addressStr.StartsWith(addressFilter, ESearchCase::IgnoreCase))  // address is case insensitive
+                if (addressFilter.GetDisplayNameEntry()->IsWide())
                 {
+                    // only ANSI characters are supported as address pattern, it would necessarly fail.
                     continue;
+                }
+                else
+                {
+                    addressFilter.GetPlainANSIString(addressFilterANSI);
+                    Osc::NameToLower(addressFilterANSI);
+                    const ANSICHAR* result = oscpkt::internalPatternMatch(addressPatternANSI, addressFilterANSI);
+                    if (!result)
+                    {
+                        continue;
+                    }
+
+                    address = FName{ result };
                 }
             }
             receiver->SendEvent(address, std::get<1>(message), senderIpStr);

@@ -58,7 +58,7 @@ public:
      *  e.g. "/position/x" -> "OSC_position_x"
      */
     UPROPERTY(Config, EditAnywhere, Category=Input)
-    TArray<FString> Inputs;
+    TArray<FName> Inputs;
 
     UPROPERTY(Config, EditAnywhere, Category=Network)
     bool MulticastLoopback;

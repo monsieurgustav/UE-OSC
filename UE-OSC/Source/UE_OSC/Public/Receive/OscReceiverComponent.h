@@ -21,7 +21,7 @@ public:
      *  Receive a message only if its address starts with the filter.
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=OSC)
-    FString AddressFilter;
+    FName AddressFilter;
 
     UPROPERTY(BlueprintAssignable, Category=OSC)
     FComponentOscReceivedSignature OnOscReceived;
@@ -33,7 +33,7 @@ public:
     /// Hot reload constructor
     UOscReceiverComponent(FVTableHelper & helper);
 
-    const FString & GetAddressFilter() const
+    FName GetAddressFilter() const
     {
         return AddressFilter;
     }

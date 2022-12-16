@@ -1,7 +1,48 @@
 #include "Common/OscFunctionLibrary.h"
+#include "Common/OscUtils.h"
+#include "Receive/oscpkt.hh"
 #include "OscSettings.h"
 #include "oscpack/osc/OscOutboundPacketStream.h"
 
+
+bool UOscFunctionLibrary::MatchOscAddressPattern(FName Path, FName Pattern, FName& PatternRest)
+{
+    if (Path.GetDisplayNameEntry()->IsWide() || Pattern.GetDisplayNameEntry()->IsWide())
+    {
+        PatternRest = FName{};
+        return false;
+    }
+
+    if (Path == Pattern)
+    {
+        PatternRest = FName{};
+        return true;
+    }
+
+    if (Pattern.IsNone())
+    {
+        PatternRest = Path;
+        return true;
+    }
+
+    ANSICHAR PathANSI[NAME_SIZE];
+    Path.GetPlainANSIString(PathANSI);
+    Osc::NameToLower(PathANSI);
+    
+    ANSICHAR PatternANSI[NAME_SIZE];
+    Pattern.GetPlainANSIString(PatternANSI);
+    Osc::NameToLower(PatternANSI);
+
+    const ANSICHAR* Result = oscpkt::internalPatternMatch(PatternANSI, PathANSI);
+    if (!Result)
+    {
+        PatternRest = FName{};
+        return false;
+    }
+
+    PatternRest = FName{ Result };
+    return true;
+}
 
 template <class T>
 static inline

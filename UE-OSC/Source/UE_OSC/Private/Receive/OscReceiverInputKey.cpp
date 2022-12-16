@@ -4,12 +4,15 @@
 #include "SlateBasics.h"
 
 
-OscReceiverInputKey::OscReceiverInputKey(const FString &address)
-  : _address(address),
-    _addressName(*address)
+OscReceiverInputKey::OscReceiverInputKey(FName address)
+  : _address(address)
 {
+    check(!address.GetDisplayNameEntry()->IsWide());
+    ANSICHAR addressANSI[NAME_SIZE];
+    address.GetPlainANSIString(addressANSI);
+
     char buffer[512];  // address truncated after 500 chars.
-    const auto length = sprintf(buffer, "OSC%.500s", StringCast<ANSICHAR>(*address).Get());
+    const auto length = sprintf(buffer, "OSC%.500s", addressANSI);
 
     // replace '/' by '_' because '/' is not a valid FKey character.
     for(int i=0; i!=length; ++i)
@@ -27,17 +30,17 @@ OscReceiverInputKey::OscReceiverInputKey(const FString &address)
 
 void OscReceiverInputKey::RegisterKey() const
 {
-    if(!_address.IsEmpty() && !EKeys::GetKeyDetails(_key).IsValid())
+    if(!_address.IsNone() && !EKeys::GetKeyDetails(_key).IsValid())
     {
         EKeys::AddKey(FKeyDetails(_key,
                                   FText::FromString(_key.ToString()),
-                                  FKeyDetails::FloatAxis));
+                                  FKeyDetails::Axis1D));
     }
 }
 
 void OscReceiverInputKey::SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp)
 {
-    if(Address != _addressName)
+    if(!Address.IsNone())  // must be an exact match of GetAddressFilter() <=> resulting Address is None
     {
         return;
     }

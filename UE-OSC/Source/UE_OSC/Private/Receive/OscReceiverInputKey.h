@@ -9,7 +9,7 @@
 class OscReceiverInputKey : public IOscReceiverInterface
 {
 public:
-    OscReceiverInputKey(const FString & address);
+    OscReceiverInputKey(FName address);
 
     OscReceiverInputKey(const OscReceiverInputKey &) = delete;
     OscReceiverInputKey& operator=(const OscReceiverInputKey &) = delete;
@@ -19,7 +19,7 @@ private:
     /// Adds the custom input key to the Slate application.
     void RegisterKey() const;
 
-    const FString & GetAddressFilter() const override
+    FName GetAddressFilter() const override
     {
         return _address;
     }
@@ -27,7 +27,6 @@ private:
     void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp) override;
 
 private:
-    FString _address;
-    FName _addressName;
+    FName _address;
     FKey _key;
 };

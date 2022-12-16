@@ -7,7 +7,7 @@
 struct UE_OSC_API IOscReceiverInterface
 {
     virtual ~IOscReceiverInterface()  {}
-    virtual const FString & GetAddressFilter() const = 0;
+    virtual FName GetAddressFilter() const = 0;
     virtual void SendEvent(const FName & Address, const TArray<FOscDataElemStruct> & Data, const FString & SenderIp) = 0;
 };
 
@@ -22,7 +22,7 @@ struct UE_OSC_API BasicOscReceiver : IOscReceiverInterface
     {
     }
 
-    const FString & GetAddressFilter() const final
+    FName GetAddressFilter() const final
     {
         return _impl->GetAddressFilter();
     }
