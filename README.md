@@ -6,6 +6,18 @@ OSC plugin for Unreal Engine 4 and Unreal Engine 5 to send and receive OSC messa
 It uses oscpack, a C++ library for packing/unpacking OSC messages, by Ross Bencina. http://www.rossbencina.com/code/oscpack
 
 
+# Migrating from UE4-OSC to UE-OSC
+
+This plugin has been working for Unreal since 2014 (UE4.4!) and it continues today with UE5!
+
+I decided to change its name from UE4-OSC to a more generic UE-OSC.
+
+To migrate an existing project using UE4-OSC to UE-OSC, add the following in the Config/DefaultEngine.ini file.
+```
+[CoreRedirects]
++PackageRedirects=(OldName="/Script/UE4_OSC", NewName="/Script/UE_OSC")
+```
+
 # Tutorial
 
 Dannington made a super tutorial!
