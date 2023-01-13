@@ -255,8 +255,22 @@ namespace
             }
             else if(elem.IsString())
             {
-                elem.AsStringValue().GetPlainANSIString(ansiString);
-                output << ansiString;
+                const FName stringValue = elem.AsStringValue();
+                if (stringValue.IsNone())
+                {
+                    output << "";
+                }
+                else if (stringValue.GetDisplayNameEntry()->IsWide())
+                {
+                    WIDECHAR wideString[NAME_SIZE];
+                    stringValue.GetPlainWIDEString(wideString);
+                    output << TCHAR_TO_UTF8(wideString);
+                }
+                else
+                {
+                    stringValue.GetPlainANSIString(ansiString);
+                    output << ansiString;
+                }
             }
             else if(elem.IsBlob())
             {
