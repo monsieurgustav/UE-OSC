@@ -1,11 +1,12 @@
 #pragma once
 
-#include "UObject/Object.h"
+#include "Osc.h"
 #include "Common/OscDataElemStruct.h"
-
-#include "Interfaces/IPv4/IPv4Address.h"
-#include "Containers/CircularQueue.h"
 #include "Common/UdpSocketReceiver.h"
+
+#include "UObject/Object.h"
+#include "Containers/Queue.h"
+#include "Interfaces/IPv4/IPv4Address.h"
 
 #include <utility>
 #include <tuple>

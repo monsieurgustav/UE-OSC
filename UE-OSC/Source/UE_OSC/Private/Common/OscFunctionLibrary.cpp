@@ -354,7 +354,7 @@ void UOscFunctionLibrary::SendOscBundle(const TArray<FOscMessageStruct> & Messag
     }
 }
 
-int32 UOscFunctionLibrary::AddSendOscTarget(FString IpPort)
+int32 UOscFunctionLibrary::AddSendOscTarget(const FString & IpPort)
 {
     return GetMutableDefault<UOscSettings>()->GetOrAddSendTarget(IpPort);
 }

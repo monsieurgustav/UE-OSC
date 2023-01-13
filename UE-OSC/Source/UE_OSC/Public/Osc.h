@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoreMinimal.h"
 
 // Target engine version. Used to enable compatibility code.
 #define OSC_ENGINE_VERSION 40800
@@ -8,12 +9,4 @@
 #error OSC_EDITOR_BUILD must be set by the OSC.Build.cs
 #endif
 
-
-/* Public Dependencies
- *****************************************************************************/
-
-#include "Networking.h"
-
-
-/* Public Includes
- *****************************************************************************/
+DECLARE_LOG_CATEGORY_EXTERN(LogUE_OSC, Log, All);

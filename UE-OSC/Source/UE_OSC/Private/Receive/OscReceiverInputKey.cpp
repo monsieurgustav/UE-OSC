@@ -1,7 +1,8 @@
 #include "OscReceiverInputKey.h"
 #include "Receive/OscDispatcher.h"
 
-#include "SlateBasics.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Input/Events.h"
 
 
 OscReceiverInputKey::OscReceiverInputKey(FName address)

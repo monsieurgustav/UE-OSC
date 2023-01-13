@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Osc.h"
 #include "OscDataElemStruct.h"
 #include "OscMessageStruct.generated.h"
 

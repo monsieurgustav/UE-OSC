@@ -1,7 +1,11 @@
 #pragma once
 
-#include "UObject/Object.h"
+#include "Osc.h"
 #include "Receive/OscReceiverInputKey.h"
+
+#include "UObject/Object.h"
+#include "Common/UdpSocketSender.h"
+
 #include <utility>
 #include <memory>
 

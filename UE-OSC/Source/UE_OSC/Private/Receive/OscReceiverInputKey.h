@@ -1,9 +1,10 @@
 #pragma once
 
-#include "InputCoreTypes.h"
-
+#include "Osc.h"
 #include "Receive/OscReceiverInterface.h"
 #include "Common/OscDataElemStruct.h"
+
+#include "InputCoreTypes.h"
 
 
 class OscReceiverInputKey : public IOscReceiverInterface

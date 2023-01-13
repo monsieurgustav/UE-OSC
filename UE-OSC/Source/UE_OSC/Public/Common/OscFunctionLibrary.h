@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Kismet/BlueprintFunctionLibrary.h"
-
+#include "Osc.h"
 #include "OscDataElemStruct.h"
 #include "OscMessageStruct.h"
+
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "OscFunctionLibrary.generated.h"
 
 
@@ -144,5 +145,5 @@ public:
      *  @see SendOsc
      */
     UFUNCTION(BlueprintCallable, Category=OSC)
-    static int32 AddSendOscTarget(FString IpPort = "127.0.0.1:8000");
+    static int32 AddSendOscTarget(const FString & IpPort = "127.0.0.1:8000");
 };

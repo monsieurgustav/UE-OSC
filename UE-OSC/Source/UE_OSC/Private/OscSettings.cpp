@@ -1,7 +1,10 @@
 #include "OscSettings.h"
 #include "Receive/OscDispatcher.h"
 
+#include "Runtime/Core/Public/Misc/Base64.h"
 #include "Interfaces/IPv4/IPv4Address.h"
+#include "Common/UdpSocketBuilder.h"
+
 #include "Sockets.h"
 
 

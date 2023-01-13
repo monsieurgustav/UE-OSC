@@ -1,8 +1,10 @@
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "Osc.h"
 #include "Receive/OscReceiverInterface.h"
 #include "Common/OscDataElemStruct.h"
+
+#include "GameFramework/Actor.h"
 #include "OscReceiverActor.generated.h"
 
 

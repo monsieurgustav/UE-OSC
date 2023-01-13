@@ -1,6 +1,10 @@
 #include "OscSettings.h"
 #include "Receive/OscDispatcher.h"
 
+#include "Modules/ModuleManager.h"
+#include "ISettingsModule.h"
+#include "ISettingsSection.h"
+
 #if OSC_EDITOR_BUILD
 #include "Editor.h"
 #endif
