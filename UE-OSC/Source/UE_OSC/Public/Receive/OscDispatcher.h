@@ -67,4 +67,8 @@ private:
 
     /// Protects _receivers
     FCriticalSection _receiversMutex;
+    
+    /// Prevent new receivers to be added/removed while iterating over existing receivers
+    bool _sendingMessages = false;
+    TArray<TPair<IOscReceiverInterface*, bool>> _deferredReceivers;
 };

@@ -77,13 +77,27 @@ void UOscDispatcher::Stop()
 void UOscDispatcher::RegisterReceiver(IOscReceiverInterface * receiver)
 {
     FScopeLock ScopeLock(&_receiversMutex);
-    _receivers.AddUnique(receiver);
+    if (_sendingMessages)
+    {
+        _deferredReceivers.Add({ receiver, true });
+    }
+    else
+    {
+        _receivers.AddUnique(receiver);
+    }
 }
 
 void UOscDispatcher::UnregisterReceiver(IOscReceiverInterface * receiver)
 {
     FScopeLock ScopeLock(&_receiversMutex);
-    _receivers.Remove(receiver);
+    if (_sendingMessages)  // defer remove
+    {
+        _deferredReceivers.Add({ receiver, false });
+    }
+    else
+    {
+        _receivers.Remove(receiver);
+    }
 }
 
 static void SendMessage(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv4Address>, EQueueMode::Mpsc> & _pendingMessages,
@@ -240,6 +254,7 @@ void UOscDispatcher::CallbackMainThread()
     FPlatformAtomics::InterlockedCompareExchange(&_taskSpawned, 0, 1);
 
     FScopeLock ScopeLock(&_receiversMutex);
+    _sendingMessages = true;
 
     FString addressStr;
     ANSICHAR addressPatternANSI[NAME_SIZE];
@@ -280,6 +295,21 @@ void UOscDispatcher::CallbackMainThread()
             receiver->SendEvent(address, std::get<1>(message), senderIpStr);
         }
     }
+
+    // merge registered receivers
+    for (const auto& deferredReceiver : _deferredReceivers)
+    {
+        if (deferredReceiver.Value)
+        {
+            _receivers.AddUnique(deferredReceiver.Key);
+        }
+        else
+        {
+            _receivers.Remove(deferredReceiver.Key);
+        }
+    }
+    _deferredReceivers.Empty();
+    _sendingMessages = false;
 }
 
 void UOscDispatcher::BeginDestroy()
