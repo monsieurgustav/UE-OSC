@@ -147,7 +147,7 @@ static void SendMessage(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIP
         }
         else if(it->IsString())
         {
-            elem.SetString(FName(it->AsStringUnchecked()));
+            elem.SetString(FName(reinterpret_cast<const UTF8CHAR*>(it->AsStringUnchecked())));
         }
         else if(it->IsBlob())
         {
