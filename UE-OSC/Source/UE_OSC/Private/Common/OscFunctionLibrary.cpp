@@ -163,6 +163,16 @@ TArray<uint8> UOscFunctionLibrary::AsBlob(const FOscDataElemStruct & input)
     return input.GetValue<TArray<uint8>>();
 }
 
+bool UOscFunctionLibrary::AsArrayBegin(const FOscDataElemStruct& input)
+{
+    return input.IsArrayBegin();
+}
+
+bool UOscFunctionLibrary::AsArrayEnd(const FOscDataElemStruct& input)
+{
+    return input.IsArrayEnd();
+}
+
 
 FOscDataElemStruct UOscFunctionLibrary::FromBool(bool input)
 {
@@ -196,6 +206,20 @@ FOscDataElemStruct UOscFunctionLibrary::FromBlob(const TArray<uint8> & input)
 {
     FOscDataElemStruct result;
     result.SetBlob(input);
+    return result;
+}
+
+FOscDataElemStruct UOscFunctionLibrary::FromArrayBegin()
+{
+    FOscDataElemStruct result;
+    result.SetArrayBegin();
+    return result;
+}
+
+FOscDataElemStruct UOscFunctionLibrary::FromArrayEnd()
+{
+    FOscDataElemStruct result;
+    result.SetArrayEnd();
     return result;
 }
 
@@ -276,6 +300,14 @@ namespace
             {
                 const TArray<uint8> & value = elem.AsBlobValue();
                 output << osc::Blob(value.GetData(), value.Num());
+            }
+            else if (elem.IsArrayBegin())
+            {
+                output << osc::BeginArray;
+            }
+            else if (elem.IsArrayEnd())
+            {
+                output << osc::EndArray;
             }
 
             if(output.State() != osc::SUCCESS)

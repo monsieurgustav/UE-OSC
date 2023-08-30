@@ -168,6 +168,14 @@ static void SendMessage(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIP
             }
             elem.SetBlob(std::move(blob));
         }
+        else if(it->IsArrayBegin())
+        {
+            elem.SetArrayBegin();
+        }
+        else if (it->IsArrayEnd())
+        {
+            elem.SetArrayEnd();
+        }
         data.Add(elem);
     }
 

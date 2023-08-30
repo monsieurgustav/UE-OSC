@@ -18,6 +18,8 @@ struct UE_OSC_API FOscDataElemStruct
         BOOL = 2,
         STRING = 3,
         BLOB = 4,
+        ARRAY_BEGIN = 5,
+        ARRAY_END = 6,
     };
 
 public:
@@ -155,6 +157,30 @@ public:
     bool IsBlob() const
     {
         return Type == BLOB;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void SetArrayBegin()
+    {
+        Data = 0;
+        Type = ARRAY_BEGIN;
+    }
+
+    bool IsArrayBegin() const
+    {
+        return Type == ARRAY_BEGIN;
+    }
+
+    void SetArrayEnd()
+    {
+        Data = 0;
+        Type = ARRAY_END;
+    }
+
+    bool IsArrayEnd() const
+    {
+        return Type == ARRAY_END;
     }
 
     //-------------------------------------------------------------------------

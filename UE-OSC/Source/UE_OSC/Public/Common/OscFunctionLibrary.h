@@ -95,6 +95,14 @@ public:
     UFUNCTION(BlueprintPure, Category=OSC)
     static TArray<uint8> AsBlob(const FOscDataElemStruct & input);
 
+    /// True if the element is the beginning of an array.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static bool AsArrayBegin(const FOscDataElemStruct & input);
+
+    /// True if the element is the end of an array.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static bool AsArrayEnd(const FOscDataElemStruct & input);
+
 
     /// Create an OSC argument from a boolean
     UFUNCTION(BlueprintPure, Category=OSC)
@@ -115,6 +123,14 @@ public:
     /// Create an OSC argument from a blob.
     UFUNCTION(BlueprintPure, Category=OSC)
     static FOscDataElemStruct FromBlob(const TArray<uint8> & input);
+
+    /// Create an OSC argument to begin an array. Must match an ArrayEnd element.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static FOscDataElemStruct FromArrayBegin();
+
+    /// Create an OSC argument to end an array. Must match an ArrayBegin element.
+    UFUNCTION(BlueprintPure, Category=OSC)
+    static FOscDataElemStruct FromArrayEnd();
 
 
     /**
