@@ -15,21 +15,19 @@ class UE_OSC_API UOscFunctionLibrary : public UBlueprintFunctionLibrary
 
 public:
 
-    /**
-     * Check an OSC pattern matching.
-     *
-     * Returns true if the pattern matches partially or fully.
-     * 
-     * PatternRest is "None" if it is a full match.
-     * PatternRest is the unmatched part of the pattern if it is a partial match.
-     * 
-     * Examples:
-     * - Path=/foo/bar Pattern=/foo => Return=false
-     * - Path=/foo/bar Pattern=/* => Return=false
-     * - Path=/foo/bar Pattern=/foo/bar => Return=true PatternRest=None
-     * - Path=/foo/bar Pattern=/*\/bar => Return=true PatternRest=None
-     * - Path=/foo/bar Pattern=/*\/bar/value => Return=true PatternRest=/value
-     */
+    /// Check an OSC pattern matching.
+    /// 
+    /// Returns true if the pattern matches partially or fully.
+    /// 
+    /// PatternRest is "None" if it is a full match.
+    /// PatternRest is the unmatched part of the pattern if it is a partial match.
+    /// 
+    /// Examples:
+    /// - Path="/foo/bar" Pattern="/foo" => Return=false
+    /// - Path="/foo/bar" Pattern="/*" => Return=false
+    /// - Path="/foo/bar" Pattern="/foo/bar" => Return=true PatternRest=None
+    /// - Path="/foo/bar" Pattern="/*/bar" => Return=true PatternRest=None
+    /// - Path="/foo/bar" Pattern="/*/bar/value" => Return=true PatternRest="/value"
     UFUNCTION(BlueprintCallable, Category=OSC)
     static bool MatchOscAddressPattern(FName Path, FName Pattern, FName& PatternRest);
 
