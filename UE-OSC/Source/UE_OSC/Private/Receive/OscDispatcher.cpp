@@ -216,7 +216,12 @@ static void SendBundle(TQueue<std::tuple<FName, TArray<FOscDataElemStruct>, FIPv
 
 void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint& endpoint)
 {
-    const osc::ReceivedPacket packet((const char *)data->GetData(), data->Num());
+    DispatchPacket(MakeArrayView(data->GetData(), data->Num()), endpoint);
+}
+
+void UOscDispatcher::DispatchPacket(const TArrayView<const uint8>& data, const FIPv4Endpoint& endpoint)
+{
+    const osc::ReceivedPacket packet((const char *)data.GetData(), data.Num());
     if(packet.State() != osc::SUCCESS)
     {
         UE_LOG(LogUE_OSC, Warning, TEXT("OSC Received Packet Error: %s"), osc::errorString(packet.State()));
@@ -247,7 +252,7 @@ void UOscDispatcher::Callback(const FArrayReaderPtr& data, const FIPv4Endpoint& 
     // Log received packet
     if(!LogUE_OSC.IsSuppressed(ELogVerbosity::Verbose))
     {
-        const auto encoded = FBase64::Encode(*data);
+        const auto encoded = FBase64::Encode(data.GetData(), data.Num());
         UE_LOG(LogUE_OSC, Verbose, TEXT("Received: %s"), *encoded);
     }
 #endif

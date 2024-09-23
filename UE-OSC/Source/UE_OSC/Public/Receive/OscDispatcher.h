@@ -47,6 +47,13 @@ public:
     /// Remove the receiver in the listeners list
     void UnregisterReceiver(IOscReceiverInterface * receiver);
 
+    /// Dispatch an OSC message from an external source.
+    /// 
+    /// The dispatcher generally uses its own UDP socket to receive OSC packets.
+    /// This function is useful to also receive OSC packets from another source,
+    /// like an TCP socket, etc.
+    void DispatchPacket(const TArrayView<const uint8>& data, const FIPv4Endpoint&);
+
 private:
     void Callback(const FArrayReaderPtr& data, const FIPv4Endpoint&);
 
