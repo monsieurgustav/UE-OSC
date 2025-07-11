@@ -1,5 +1,6 @@
 #include "Receive/OscReceiverComponent.h"
 #include "Receive/OscDispatcher.h"
+#include "GameFramework/Actor.h"
 
 
 UOscReceiverComponent::UOscReceiverComponent()

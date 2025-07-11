@@ -10,6 +10,7 @@
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "Async/TaskGraphInterfaces.h"
+#include "Misc/Base64.h"
 
 #include "oscpkt.hh"  // only for pattern matching (oscpack is preferred because it makes no memory allocation)
 

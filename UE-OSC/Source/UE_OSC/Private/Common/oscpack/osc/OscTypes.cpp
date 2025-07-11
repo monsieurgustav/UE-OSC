@@ -36,6 +36,7 @@
 */
 
 #include "OscTypes.h"
+#include "Misc/AssertionMacros.h"
 
 namespace osc{
 

@@ -34,7 +34,8 @@ namespace UnrealBuildTool.Rules
 				}
 			);
 
-			if (Target.Type == TargetRules.TargetType.Editor)
+            PrivateDefinitions.Add("_CRT_SECURE_NO_WARNINGS=1");
+            if (Target.Type == TargetRules.TargetType.Editor)
             {
                 PublicDefinitions.Add("OSC_EDITOR_BUILD=1");
 

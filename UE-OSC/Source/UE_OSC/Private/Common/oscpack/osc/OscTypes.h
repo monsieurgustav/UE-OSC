@@ -37,6 +37,7 @@
 #ifndef INCLUDED_OSCPACK_OSCTYPES_H
 #define INCLUDED_OSCPACK_OSCTYPES_H
 
+#include "HAL/Platform.h"
 
 namespace osc{
 
